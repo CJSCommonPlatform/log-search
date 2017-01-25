@@ -1,0 +1,60 @@
+{ "index": { "_index": "elasticsearch","_type":"products" }}
+{ "price" : 10, "productID" : "XHDK-A-1293-#fJ3", "message": "testuser, adminpassword, username, user, password,",  "@timestamp":"2015-05-17T09:03:25.877Z"}
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "TESTUSER, ADMINUSER, ADMINPASSWORD, USERNAME, USER, PASSWORD 12.21.32.45 " ,"@timestamp":"2015-05-17T10:03:25.877Z"}
+{ "index": { "_index": "elasticsearch","_type":"products" }}
+{ "price" : 30, "productID" : "JODL-X-1937-#pV7", "message" : "JDBC , JDBC:, HTTPS JDBC:, HTTP HTTPS HTTPS: HTTP: TCP TCP: ", "@timestamp":"2015-05-17T11:03:25.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 30, "productID" : "QQPX-R-3956-#aD8",  "message": "jdbc, jdbc:, https jdbc:, http https https: http\\: http.12.244 10.12 34.34." ,"@timestamp":"2015-05-18T00:03:25.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products" }}
+{ "price" : 30, "productID" : "QQPX-R-3956-#aD82  dfsdsdsd", "message": "10.12.244.123 10.12.34.34 " ,"@timestamp":"2015-05-18T01:03:25.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products" }}
+{ "price" : 30, "productID" : "QQPX-R-3956-#aD82  dfsdsdsd", "message": "10.12.244 10.12.34  " ,"@timestamp":"2015-05-18T02:03:25.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products" }}
+{ "price" : 30, "productID" : "QQPX-R-3956-#aD82  dfsdsdsd", "message": "localhis  " ,"@timestamp":"2015-05-18T03:03:25.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products" }}
+{ "price" : 30, "productID" : "QQPX-R-3956-#aD82  dfsdsdsd", "message": " 192.12.123.4 10.12.34  " ,"@timestamp":"2015-05-18T04:03:25.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "TESTUSER1, ADMINUSER1, PASSWORD1, USERNAME1, USER1, PASSWORD1","@timestamp":"2015-05-18T05:03:25.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "TESTUSER12, ADMINUSER12, PASSWORD12, USERNAME12, USER12, PASSWORD12" ,"@timestamp":"2015-05-18T06:03:25.877Z"}
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "TESTUSER12$1, ADMINUSER12$1, PASSWORD12$1, USERNAME12$1, USER12$1, PASSWORD12$1","@timestamp":"2015-05-18T07:03:25.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "TESTADMINUSER12$1, ADMINTESTYUSER12$1, PASSWORD12$1, USERNAME12$1, USER12$1, PASSWORD12$1" ,"@timestamp":"2015-05-18T08:03:25.877Z"}
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "ADMTEST12$1, TESTADMIN12$1, PASSWORD12$1, USERNAME12$1, USER12$1, PASSWORD12$1" ,"@timestamp":"2015-05-18T09:03:25.878Z"}
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "TES, ADMIN, PASS, USERNAME12$1, USER12$1, PASSWORD12$1 127.0.0.1:41388","@timestamp":"2015-05-18T10:03:25.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "TESTUSER1, PASSWORD1, USERNAME1, USER1, PASSWORD1  ","@timestamp":"2015-05-18T11:03:23.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "log$output ","@timestamp":"2015-05-18T11:03:25.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "10 12 34 34 12.12.34.34 ","@timestamp":"2015-05-18T11:03:25.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "10$12$34$34 12.12.34.34 ","@timestamp":"2015-05-18T11:03:25.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "10.12.34.34 12.12.34  ","@timestamp":"2015-05-18T11:03:28.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "10.12.34.34 12.12.34  ","@timestamp":"2015-05-18T11:03:28.877Z" }
+{"index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "99 99 99.99 12.12.34  ","@timestamp":"2015-05-18T11:03:28.877Z" }
+{"index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "99.99.99.99 12.12.34  ","@timestamp":"2015-05-18T11:03:28.877Z" }
+{"index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "$99.99.99.99 12.12.34  ","@timestamp":"2015-05-18T11:03:28.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": ".log$output.","@timestamp":"2015-05-18T11:03:28.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "xlog$outputx","@timestamp":"2015-05-18T11:03:28.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": " log output","@timestamp":"2015-05-18T11:03:28.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "log output ","@timestamp":"2015-05-18T11:03:28.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": " log output ","@timestamp":"2015-05-18T11:03:28.877Z" }
+{ "index": { "_index": "elasticsearch","_type":"products"  }
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "vlog outputv","@timestamp":"2015-05-18T11:03:28.877Z" , "id": "sdsd"}
+{ "index": { "_index": "elasticsearch","_type":"products"  }
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "log.output ","@timestamp":"2015-05-18T11:03:28.877Z" , "id": "sdsd"}

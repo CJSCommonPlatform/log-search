@@ -1,21 +1,28 @@
-Constraints:
-KABANA Log loading range: 99% ~ 1 minute, 100% < 5mins
+Input :
+     config.yaml with the following inputs:
+       hostName: <<kibana url>>
+       hostPort: <<80 or 443>>
+       hostScheme: <<http or https>>
+       proxyHost: <<proxy ip address>>
+       proxyPort: <<proxy port>>and criteria.yaml any where in the file system
 
-Steps to Build:
-	1. Create a new Git hub repository under CPP called log-search
-	2. Create a new Jenkins job to run this in any environment
-	3. Parameterise the following variables (via properties file provided via Jenkins)
-			Kabana URL
-			Start time	 (check logs from)
-			End time (check logs to)
-			List the keywords to search for (username, password, JDBC URLs IP addresses)
-			URL,	 IP, password (Supplied from the test cases),username (Supplied from the test cases)
-	4.  Create a rest based module to perform elastic search
-	5.  Create a component to read from property resource file
-	6.  Perform KABANA search based on input data
-	7.  Test assertions to report failures
+     criteria.yaml with the following inputs:
+        regexes:
+            -  (([0-1]?[0-9]{1,2}\.)|(2[0-4][0-9]\.)|(25[0-5]\.)){3}(([0-1]?[0-9]{1,2})|(2[0-4][0-9])|(25[0-5]))
+        keywords:
+            - jdbc:
+        durationMinutes: 60
+        fromTime: "2017-02-21T09:03:25.877Z"
+        toTime: "2017-02-24T15:45:25.877Z"
+        responseSize: 300
 
-Steps to Run:
-1. Start any tests job manually via jenkins
-2. Schedule log secured verification job (as a downstream) to follow
-every 5 after any run of Test
+Output: Hits on console and hits and messages on results.html
+
+Run the application:
+Application requires 1 command and 3 parameters
+    searchlogs = Commmand
+    -config   = config yaml file location  (mandatory)
+    -search   = criteria yaml file location (mandatory)
+    -output   = output file location (optional) will output results.html to the pwd
+
+java -jar log-search.jar searchlogs -config /Users/name/config.yaml -search /Users/name/criteria.yaml -output /Users/name/result.html
