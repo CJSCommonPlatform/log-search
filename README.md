@@ -4,16 +4,18 @@ Input :
        hostPort: <<80 or 443>>
        hostScheme: <<http or https>>
        proxyHost: <<proxy ip address>>
-       proxyPort: <<proxy port>>and criteria.yaml any where in the file system
+       proxyPort: <<proxy port>>
 
      criteria.yaml with the following inputs:
         regexes:
             -  (([0-1]?[0-9]{1,2}\.)|(2[0-4][0-9]\.)|(25[0-5]\.)){3}(([0-1]?[0-9]{1,2})|(2[0-4][0-9])|(25[0-5]))
         keywords:
             - jdbc:
-        durationMinutes: 60
+        durationMinutes: 60 ( Either Duration Minutes or From/To time)
+
         fromTime: "2017-02-21T09:03:25.877Z"
         toTime: "2017-02-24T15:45:25.877Z"
+
         responseSize: 300
 
 Output: Hits on console and hits and messages on results.html

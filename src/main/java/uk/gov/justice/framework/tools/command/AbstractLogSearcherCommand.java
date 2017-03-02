@@ -16,5 +16,8 @@ abstract class AbstractLogSearcherCommand {
     String searchCriteriaYamlPath;
 
     @Parameter(names = "-output", description = "output file path", required = false)
-    String outputFile;
+    String outputFilePath;
+
+    @Parameter(names = "-userlist", description = "user list path", required = false)
+    String userListFilePath;
 }

@@ -56,12 +56,6 @@ public class KibanaQueryBuilderTest {
         when(searchCriteria.getRegexes()).thenReturn(new ArrayList<>());
 
         final int durationMinutes = 60;
-
-        final Instant now = Instant.now();
-        kibanaQueryBuilder.setInstantWrapper(instantWrapper);
-        when(instantWrapper.now()).thenReturn(now);
-
-
         final List<String> keywords = new ArrayList<>();
         keywords.add("202");
 
@@ -212,7 +206,6 @@ public class KibanaQueryBuilderTest {
         LOGGER.info(queryStr(stringEntity));
         assertThat(queryStr(stringEntity), is(regexpExpectedString));
     }
-
 
     private String queryStr(final NStringEntity stringEntity) throws IOException {
         return EntityUtils.toString(stringEntity);

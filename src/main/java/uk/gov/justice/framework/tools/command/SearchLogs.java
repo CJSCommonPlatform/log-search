@@ -24,13 +24,9 @@ public class SearchLogs extends AbstractLogSearcherCommand implements ShellComma
 
     public static void main(String[] args) {
         PropertyReader propertyReader = null;
-        try {
-            propertyReader = new PropertyReader(args[0], args[1], args[2]);
-        } catch (IOException e) {
-            System.out.println(e);
-        }
-        new SearchLogs().search(propertyReader);
+        propertyReader = new PropertyReader(args[0], args[1], args[2], args[3]);
 
+        new SearchLogs().search(propertyReader);
     }
 
     private void search(final PropertyReader propertyReader) {
@@ -38,13 +34,7 @@ public class SearchLogs extends AbstractLogSearcherCommand implements ShellComma
         final SearchCriteria searchCriteria = propertyReader.searchCriteria();
         final HTMLPrinter filePrinter = new HTMLPrinter(propertyReader.responseOutputPath());
 
-        final ConnectionManager connectionManager = new ConnectionManager();
-        final RequestConfigBuilderWrapper requestConfigBuilderWrapper = new RequestConfigBuilderWrapper(restConfig);
-        final HttpAsyncClientBuilderWrapper httpAsyncClientBuilderWrapper = new HttpAsyncClientBuilderWrapper(connectionManager);
-
-        final RestClientFactory restClientFactory = new RestClientFactory();
-        final RestClient restClient = restClientFactory.buildRestClient(restConfig,
-                requestConfigBuilderWrapper, httpAsyncClientBuilderWrapper);
+        final RestClient restClient = restClient(restConfig);
         final SearchService searchService = new SearchService(restClient);
 
         try {
@@ -63,14 +53,19 @@ public class SearchLogs extends AbstractLogSearcherCommand implements ShellComma
         }
     }
 
+    private RestClient restClient(RestConfig restConfig) {
+        final ConnectionManager connectionManager = new ConnectionManager();
+        final RequestConfigBuilderWrapper requestConfigBuilderWrapper = new RequestConfigBuilderWrapper(restConfig);
+        final HttpAsyncClientBuilderWrapper httpAsyncClientBuilderWrapper = new HttpAsyncClientBuilderWrapper(connectionManager);
+
+        final RestClientFactory restClientFactory = new RestClientFactory();
+        return restClientFactory.buildRestClient(restConfig,
+                requestConfigBuilderWrapper, httpAsyncClientBuilderWrapper);
+    }
+
     @Override
     public void run(final String[] strings) {
-
-        try {
-            final PropertyReader propertyReader = new PropertyReader(configYamlPath, searchCriteriaYamlPath, outputFile);
-            search(propertyReader);
-        } catch (IOException exception) {
-            consolePrinter.writeStackTrace(exception);
-        }
+        final PropertyReader propertyReader = new PropertyReader(configYamlPath, searchCriteriaYamlPath, outputFilePath, userListFilePath);
+        search(propertyReader);
     }
 }

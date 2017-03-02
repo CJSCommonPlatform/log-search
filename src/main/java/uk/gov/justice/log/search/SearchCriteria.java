@@ -91,4 +91,7 @@ public class SearchCriteria {
         this.responseSize = responseSize;
     }
 
+    public void addKeyword(String name) {
+        keywords.add(name);
+    }
 }
