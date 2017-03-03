@@ -4,7 +4,9 @@ import uk.gov.justice.framework.tools.common.command.ShellCommand;
 import uk.gov.justice.log.search.KibanaQueryBuilder;
 import uk.gov.justice.log.search.SearchCriteria;
 import uk.gov.justice.log.search.SearchService;
+import uk.gov.justice.log.search.main.output.FilePrinter;
 import uk.gov.justice.log.search.main.output.HTMLPrinter;
+import uk.gov.justice.log.search.main.output.OutputPrinter;
 import uk.gov.justice.log.utils.ConnectionManager;
 import uk.gov.justice.log.utils.PropertyReader;
 import uk.gov.justice.log.utils.RestConfig;
@@ -34,10 +36,11 @@ public class SearchLogs extends AbstractLogSearcherCommand implements ShellComma
         this.kibanaQueryBuilder = kibanaQueryBuilder;
         this.searchService = new SearchService(restClient());
     }
+
     @VisibleForTesting
     public SearchLogs(final KibanaQueryBuilder kibanaQueryBuilder, final SearchService searchService) {
         this.kibanaQueryBuilder = kibanaQueryBuilder;
-        this.searchService =searchService;
+        this.searchService = searchService;
     }
 
     @Override
@@ -55,16 +58,24 @@ public class SearchLogs extends AbstractLogSearcherCommand implements ShellComma
     }
 
     private void printResults(final KibanaQueryBuilder kibanaQueryBuilder, final Response response) {
-        final HTMLPrinter printer = new HTMLPrinter(searchParameters.getResponseOutputPath());
         try {
             final String responseStrActual = EntityUtils.toString(response.getEntity());
             final Integer hits = JsonPath.read(responseStrActual, "$.responses[0].hits.total");
             final JSONArray messages = JsonPath.read(responseStrActual, "$.responses[0].hits..message");
             consolePrinter.write("Hits: " + hits);
-            final String query =kibanaQueryBuilder.query();
-            printer.writeMessages(query, searchCriteria.getFromTime(), searchCriteria.getToTime(), hits + "", messages);
+            final String query = kibanaQueryBuilder.query();
+            outputPrinter().writeMessages(query, searchCriteria.getFromTime(), searchCriteria.getToTime(), hits + "", messages);
         } catch (IOException e) {
             consolePrinter.writeException(e);
+        }
+    }
+
+    private OutputPrinter outputPrinter() {
+        final String outputFile = searchParameters.getResponseOutputPath();
+        if (outputFile!=null && outputFile.endsWith(".txt")) {
+            return new FilePrinter(outputFile);
+        } else {
+            return new HTMLPrinter(outputFile);
         }
     }
 
