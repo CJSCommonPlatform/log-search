@@ -19,6 +19,7 @@ import uk.gov.justice.log.search.SearchService;
 import uk.gov.justice.log.utils.ConnectionManager;
 import uk.gov.justice.log.utils.PropertyReader;
 import uk.gov.justice.log.utils.RestConfig;
+import uk.gov.justice.log.utils.SearchParameters;
 import uk.gov.justice.log.wrapper.HttpAsyncClientBuilderWrapper;
 import uk.gov.justice.log.wrapper.RequestConfigBuilderWrapper;
 
@@ -69,7 +70,6 @@ public class SearchServiceIT {
     private static final String HOST_SCHEME = "http";
     private static final String HOST_NAME = "localhost";
     private static final int HOST_PORT = 9205;
-    private static final String PROXY_HOST = "proxy_host";
     private static final String SAMPLE_LOGS_PATH = "src/test/resources/products.json";
     private static final String HTTP_TRANSPORT_PORT = "9307";
     private static final String ES_WORKING_DIR = "target/es";
@@ -87,7 +87,7 @@ public class SearchServiceIT {
         removeOldDataDir(ES_WORKING_DIR);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, HOST_PORT, 0, "");
         mockSetupForSearchCriteria(Arrays.asList("testuser"), null, 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z");
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(new SearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         restConfig = propertyReader.restConfig();
 
         Settings settings = Settings.builder()
@@ -224,7 +224,7 @@ public class SearchServiceIT {
     public void shouldFindCorrectHitsWhenSearchWordsWithSpaceInTheBeginingOnly() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList(" log output"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -248,7 +248,7 @@ public class SearchServiceIT {
     @Test
     public void shouldFindCorrectHitsWhenSearchedUsingOneLowerCaseKeywordAdminUser() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList("adminuser"), null, 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z");
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -270,7 +270,7 @@ public class SearchServiceIT {
     @Test
     public void shouldFindCorrectHitsWhenSearchedUsingOneKeywordUpperCaseAdminUser() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList("ADMINUSER"), null, 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z");
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -302,7 +302,7 @@ public class SearchServiceIT {
     @Test
     public void shouldFindCorrectHitsWhenSearchedUsingOneKeywordTes() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList("tes"), null, 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z");
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -327,7 +327,7 @@ public class SearchServiceIT {
     @Test
     public void shouldFindCorrectHitsWhenSearchedUsingMultipleKeywords() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList("testuser", "adminuser"), null, 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z");
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -352,7 +352,7 @@ public class SearchServiceIT {
     @Test
     public void shouldFindCorrectHitsWhenSearchedUsingOneRegexAndOneKeyword() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList("abcd"), Arrays.asList(ipRegex), 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z");
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -398,7 +398,7 @@ public class SearchServiceIT {
     public void shouldFindCorrectHitsWhenSearchedUsingMultipleRegexAndMultipleKeyword() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList("testuser", "adminuser"), Arrays.asList(ipRegex), 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -431,7 +431,7 @@ public class SearchServiceIT {
     public void shouldFindCorrectHitsWhenSearchedUsingMultipleRegexAndMultipleKeywordLimitByTime() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList("testuser", "adminuser"), Arrays.asList(ipRegex), 0, "2015-05-17T09:05:25.877Z", "2015-05-18T11:03:28.877Z");
 
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -464,7 +464,7 @@ public class SearchServiceIT {
     public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInBeggining() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList(".log$output"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -489,7 +489,7 @@ public class SearchServiceIT {
     public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInEnd() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList("log$output."), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -515,7 +515,7 @@ public class SearchServiceIT {
     public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInBeginingAndEnd() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList(".log$output."), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -540,7 +540,7 @@ public class SearchServiceIT {
     public void shouldFindCorrectHitsWhenSearchWordsWithSpaceInTheMiddle() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList("log output"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -565,7 +565,7 @@ public class SearchServiceIT {
     public void shouldFindCorrectHitsWhenSearchWordsWithSpaceInTheBeginingMiddleAndEnd() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList(" log output "), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -590,7 +590,7 @@ public class SearchServiceIT {
     public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInMiddle() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList("log.output"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -615,7 +615,7 @@ public class SearchServiceIT {
     public void shouldFindCorrectHitsWhenSearchSpecificIP() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList("99.99.99.99"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -639,7 +639,7 @@ public class SearchServiceIT {
     public void shouldFindCorrectHitsWhenSearchSpecificIPWithspecialCharacterInBegining() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList("99.99.99.99"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:40.879Z");
 
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
         restConfig = propertyReader.restConfig();
 
@@ -658,6 +658,10 @@ public class SearchServiceIT {
                 withJsonPath("$.responses[0].hits.total", is(2))
                 ))
         );
+    }
+
+    protected SearchParameters setUpSearchParameters(String configPath, String searchPath, String userListPath, String responsePath) {
+        return new SearchParameters(configPath, searchPath, userListPath, responsePath);
     }
 
     private static class PluginConfigurableNode extends Node {

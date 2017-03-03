@@ -33,9 +33,11 @@ public class PropertyReaderTest {
     protected static final String PROXY_HOST = "proxy_host";
     protected static final String FROM = "2015-05-17T09:03:25.877Z";
     protected static final String TO = "2015-05-18T07:03:25.877Z";
+
     protected static final String CONFIG_PATH = "src/test/resources/test-config.yaml";
     protected static final String SEARCH_PATH = "src/test/resources/test-search.yaml";
     protected static final String USER_LIST_PATH = "src/test/resources/user-list.yaml";
+    protected static final String RESPONSE_PATH = "src/test/resources/output.html";
 
     @Rule
     public ExpectedException expectedExption = ExpectedException.none();
@@ -50,13 +52,11 @@ public class PropertyReaderTest {
         new File(USER_LIST_PATH).delete();
     }
 
-
     @Test
     public void shouldFailWhenUserListFileIsNotFound() throws IOException, ParseException {
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST);
         mockSetupForSearchCriteria(Arrays.asList("key1"), Arrays.asList("[2][0][2]", "[4][0][0]"), 0, FROM, TO);
-
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, "/Users/user.json", null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, "/Users/user.json", null));
 
         assertThat(propertyReader.searchCriteria().getRegexes().size(), is(2));
         assertThat("User list file is not present at given location: " + "/Users/user.json", is(propertyReader.errors().get(0).trim()));
@@ -68,7 +68,9 @@ public class PropertyReaderTest {
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST);
         mockSetupForSearchCriteria(Arrays.asList("key1"), Arrays.asList("[2][0][2]", "[4][0][0]"), 0, FROM, TO);
         mockSetupForUserListFile();
-        final PropertyReader propertyReader = new PropertyReader("/xyz", SEARCH_PATH, USER_LIST_PATH, null);
+
+
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters("/xyz", SEARCH_PATH, USER_LIST_PATH, null));
 
         assertThat(propertyReader.searchCriteria().getRegexes().size(), is(2));
         assertThat(propertyReader.errors().get(0).trim(), is("config.yaml is not present at given location: " + "/xyz"));
@@ -85,13 +87,13 @@ public class PropertyReaderTest {
         userData.put("u2", "p2");
         mockSetupForUserListFile();
 
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, USER_LIST_PATH, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, USER_LIST_PATH, null));
         assertThat(propertyReader.errors().size(), is(0));
     }
 
     @Test
     public void shouldPassWhenBothFilesFound() throws IOException, ParseException {
-        final PropertyReader propertyReader = new PropertyReader(CONFIG_PATH, SEARCH_PATH, null, null);
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         assertThat(propertyReader.errors().size(), is(0));
     }
 
@@ -126,11 +128,11 @@ public class PropertyReaderTest {
     }
 
     protected void mockSetupForUserListFile() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayNode array = mapper.createArrayNode();
+        final ObjectMapper mapper = new ObjectMapper();
+        final ArrayNode array = mapper.createArrayNode();
 
-        JsonNodeFactory factory = JsonNodeFactory.instance;
-        ObjectNode row = new ObjectNode(factory);
+        final JsonNodeFactory factory = JsonNodeFactory.instance;
+        final ObjectNode row = new ObjectNode(factory);
         row.put("user", "u1");
         row.put("pass", "p1");
         array.add(row);
@@ -138,8 +140,8 @@ public class PropertyReaderTest {
         mapper.writeValue(new FileWriter(USER_LIST_PATH), array);
     }
 
-    protected void mockSetupForUserListFile1(final String userData) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(new FileWriter(USER_LIST_PATH), userData);
+    protected SearchParameters setUpSearchParameters(String configPath, String searchPath, String userListPath, String responsePath) {
+        return new SearchParameters(configPath, searchPath, userListPath, responsePath);
     }
+
 }

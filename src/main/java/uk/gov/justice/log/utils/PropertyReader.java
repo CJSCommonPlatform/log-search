@@ -21,22 +21,13 @@ import org.yaml.snakeyaml.Yaml;
 
 public class PropertyReader {
 
-    private final String responseOutputPath;
-    private final String configFilePath;
-    private final String userListFilePath;
-    private final String searchCriteriaPath;
+    private final SearchParameters searchParameters;
     private final List<String> errors = new ArrayList<>();
     private SearchCriteria searchCriteria;
     private RestConfig restConfig;
 
-    public PropertyReader(final String configFilePath,
-                          final String searchCriteriaPath,
-                          final String userListFilePath,
-                          final String outputFilePath) {
-        this.responseOutputPath = outputFilePath;
-        this.configFilePath = configFilePath;
-        this.searchCriteriaPath = searchCriteriaPath;
-        this.userListFilePath = userListFilePath;
+    public PropertyReader(final SearchParameters searchParameters) {
+        this.searchParameters = searchParameters;
         createAndValidate();
     }
 
@@ -47,6 +38,7 @@ public class PropertyReader {
     }
 
     private void includeUserListIntoSearchCriteria() {
+        final String userListFilePath = searchParameters.getUserListFilePath();
         if (userListFilePath != null) {
             try {
                 try (InputStream in = Files.newInputStream(Paths.get(userListFilePath))) {
@@ -68,6 +60,7 @@ public class PropertyReader {
     }
 
     private void createAndValidateRestConfig() {
+        final String configFilePath = searchParameters.getConfigFilePath();
         try {
             try (InputStream in = Files.newInputStream(Paths.get(configFilePath))) {
                 final Yaml yaml = new Yaml();
@@ -81,6 +74,7 @@ public class PropertyReader {
     }
 
     private void createAndValidateSearchCriteria() {
+        final String searchCriteriaPath = searchParameters.getSearchCriteriaPath();
         try {
             try (InputStream in = Files.newInputStream(Paths.get(searchCriteriaPath))) {
                 final Yaml yaml = new Yaml();
@@ -88,7 +82,7 @@ public class PropertyReader {
             }
             validateSearchCriteria();
         } catch (IOException e) {
-            errors.add("criteria.yaml is not present at given location: " + configFilePath);
+            errors.add("criteria.yaml is not present at given location: " + searchCriteriaPath);
         }
     }
 
@@ -178,10 +172,6 @@ public class PropertyReader {
 
     public SearchCriteria searchCriteria() {
         return searchCriteria;
-    }
-
-    public String responseOutputPath() {
-        return responseOutputPath;
     }
 
     public List<String> errors() {
