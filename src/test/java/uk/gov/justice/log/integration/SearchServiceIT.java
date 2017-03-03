@@ -1,6 +1,11 @@
 package uk.gov.justice.log.integration;
 
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.isJson;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static uk.gov.justice.log.utils.CommonConstant.ELASTIC_SEARCH_CLUSTER_URL;
@@ -20,7 +25,6 @@ import uk.gov.justice.log.wrapper.RequestConfigBuilderWrapper;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -34,8 +38,6 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 
-import com.jayway.jsonpath.JsonPath;
-import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -60,6 +62,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SearchServiceIT {
 
@@ -80,7 +83,7 @@ public class SearchServiceIT {
     private SearchCriteria searchCriteria;
 
     @BeforeClass
-    public static void startElasticsearch() throws IOException, NodeValidationException,InterruptedException {
+    public static void startElasticsearch() throws IOException, NodeValidationException, InterruptedException {
         removeOldDataDir(ES_WORKING_DIR);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, HOST_PORT, 0, "");
         mockSetupForSearchCriteria(Arrays.asList("testuser"), null, 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z");
@@ -229,10 +232,18 @@ public class SearchServiceIT {
 
         final SearchService logSearcher = new SearchService(restClient());
         final Response response = logSearcher.search(kibanaQueryBuilder);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 2, 2);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:26.877Z", "2015-05-18T11:03:24.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]..message", containsInAnyOrder(" log output", " log output ")),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(2)),
+                withJsonPath("$.responses[*].hits..message", hasSize(2)),
+                withJsonPath("$.responses[0].hits.total", is(2))
+                ))
+        );
     }
-
 
     @Test
     public void shouldFindCorrectHitsWhenSearchedUsingOneLowerCaseKeywordAdminUser() throws IOException {
@@ -246,8 +257,14 @@ public class SearchServiceIT {
         final SearchService logSearcher = new SearchService(restClient());
 
         final Response response = logSearcher.search(kibanaQueryBuilder);
-
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 0, 0);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(0)),
+                withJsonPath("$.responses[*].hits..message", hasSize(0)),
+                withJsonPath("$.responses[0].hits.total", is(0))
+                ))
+        );
     }
 
     @Test
@@ -262,8 +279,24 @@ public class SearchServiceIT {
         final SearchService logSearcher = new SearchService(restClient());
 
         final Response response = logSearcher.search(kibanaQueryBuilder);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 5, 5);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T05:03:25.877Z", "2015-05-17T10:03:25.877Z", "2015-05-18T07:03:25.877Z", "2015-05-18T06:03:25.877Z", "2015-05-18T08:03:25.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]..message", containsInAnyOrder(
+                        "TESTUSER1, ADMINUSER1, PASSWORD1, USERNAME1, USER1, PASSWORD1",
+                        "TESTUSER, ADMINUSER, ADMINPASSWORD, USERNAME, USER, PASSWORD 12.21.32.45 ",
+                        "TESTUSER12$1, ADMINUSER12$1, PASSWORD12$1, USERNAME12$1, USER12$1, PASSWORD12$1",
+                        "TESTUSER12, ADMINUSER12, PASSWORD12, USERNAME12, USER12, PASSWORD12",
+                        "TESTADMINUSER12$1, ADMINTESTYUSER12$1, PASSWORD12$1, USERNAME12$1, USER12$1, PASSWORD12$1")),
+
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(5)),
+                withJsonPath("$.responses[*].hits..message", hasSize(5)),
+                withJsonPath("$.responses[0].hits.total", is(5))
+                ))
+        );
+
     }
 
     @Test
@@ -278,8 +311,17 @@ public class SearchServiceIT {
         final SearchService logSearcher = new SearchService(restClient());
 
         final Response response = logSearcher.search(kibanaQueryBuilder);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 1, 1);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-17T09:03:25.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]..message", containsInAnyOrder("testuser, adminpassword, username, user, password,")),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[*].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0].hits.total", is(1))
+                ))
+        );
     }
 
     @Test
@@ -295,7 +337,16 @@ public class SearchServiceIT {
 
         final Response response = logSearcher.search(kibanaQueryBuilder);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 1, 1);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[*]._source.@timestamp", containsInAnyOrder("2015-05-17T09:03:25.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("testuser, adminpassword, username, user, password,")),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[*].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0].hits.total", is(1))
+                ))
+        );
     }
 
     @Test
@@ -310,7 +361,37 @@ public class SearchServiceIT {
         final SearchService logSearcher = new SearchService(restClient());
         final Response response = logSearcher.search(kibanaQueryBuilder);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 10, 10);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:25.877Z",
+                        "2015-05-18T11:03:28.877Z",
+                        "2015-05-18T11:03:28.877Z",
+                        "2015-05-17T10:03:25.877Z",
+                        "2015-05-18T11:03:28.877Z",
+                        "2015-05-18T04:03:25.877Z",
+                        "2015-05-18T01:03:25.877Z",
+                        "2015-05-18T10:03:25.877Z",
+                        "2015-05-18T11:03:25.877Z",
+                        "2015-05-18T11:03:28.877Z")),
+
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(
+                        "10.12.244.123 10.12.34.34 ",
+                        "10.12.34.34 12.12.34  ",
+                        " 192.12.123.4 10.12.34  ",
+                        "10.12.34.34 12.12.34  ",
+                        "$99.99.99.99 12.12.34  ",
+                        "10$12$34$34 12.12.34.34 ",
+                        "TESTUSER, ADMINUSER, ADMINPASSWORD, USERNAME, USER, PASSWORD 12.21.32.45 ",
+                        "TES, ADMIN, PASS, USERNAME12$1, USER12$1, PASSWORD12$1 127.0.0.1:41388",
+                        "99.99.99.99 12.12.34  ",
+                        "10 12 34 34 12.12.34.34 ")),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(10)),
+                withJsonPath("$.responses[*].hits..message", hasSize(10)),
+                withJsonPath("$.responses[0].hits.total", is(10))
+                ))
+        );
     }
 
     @Test
@@ -326,7 +407,24 @@ public class SearchServiceIT {
         final SearchService logSearcher = new SearchService(restClient());
         final Response response = logSearcher.search(kibanaQueryBuilder);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 11, 11);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder(
+                        "2015-05-18T04:03:25.877Z", "2015-05-18T10:03:25.877Z", "2015-05-18T11:03:25.877Z", "2015-05-18T11:03:28.877Z", "2015-05-18T11:03:28.877Z", "2015-05-17T10:03:25.877Z",
+                        "2015-05-18T11:03:28.877Z", "2015-05-18T01:03:25.877Z", "2015-05-18T11:03:28.877Z", "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:25.877Z"
+                )),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(
+                        "TESTUSER, ADMINUSER, ADMINPASSWORD, USERNAME, USER, PASSWORD 12.21.32.45 ", "TES, ADMIN, PASS, USERNAME12$1, USER12$1, PASSWORD12$1 127.0.0.1:41388", "10 12 34 34 12.12.34.34 ",
+                        "10$12$34$34 12.12.34.34 ", "99.99.99.99 12.12.34  ", "$99.99.99.99 12.12.34  ", "testuser, adminpassword, username, user, password,", " 192.12.123.4 10.12.34  ",
+                        "10.12.34.34 12.12.34  ", "10.12.244.123 10.12.34.34 ", "10.12.34.34 12.12.34  "
+                )),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(11)),
+                withJsonPath("$.responses[*].hits..message", hasSize(11)),
+                withJsonPath("$.responses[0].hits.total", is(11))
+                ))
+        );
+
     }
 
     @Test
@@ -342,7 +440,24 @@ public class SearchServiceIT {
         final SearchService logSearcher = new SearchService(restClient());
         final Response response = logSearcher.search(kibanaQueryBuilder);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 10, 10);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder(
+                        "2015-05-17T10:03:25.877Z", "2015-05-18T04:03:25.877Z", "2015-05-18T11:03:25.877Z", "2015-05-18T11:03:28.877Z", "2015-05-18T01:03:25.877Z", "2015-05-18T10:03:25.877Z",
+                        "2015-05-18T11:03:28.877Z", "2015-05-18T11:03:28.877Z", "2015-05-18T11:03:28.877Z", "2015-05-18T11:03:25.877Z"
+
+                )),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(
+                        "TESTUSER, ADMINUSER, ADMINPASSWORD, USERNAME, USER, PASSWORD 12.21.32.45 ", "10 12 34 34 12.12.34.34 ",
+                        "10.12.244.123 10.12.34.34 ", "10$12$34$34 12.12.34.34 ", "10.12.34.34 12.12.34  ", "99.99.99.99 12.12.34  ",
+                        " 192.12.123.4 10.12.34  ", "10.12.34.34 12.12.34  ", "$99.99.99.99 12.12.34  ", "TES, ADMIN, PASS, USERNAME12$1, USER12$1, PASSWORD12$1 127.0.0.1:41388"
+                )),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(10)),
+                withJsonPath("$.responses[*].hits..message", hasSize(10)),
+                withJsonPath("$.responses[0].hits.total", is(10))
+                ))
+        );
     }
 
     @Test
@@ -358,7 +473,16 @@ public class SearchServiceIT {
         final SearchService logSearcher = new SearchService(restClient());
         final Response response = logSearcher.search(kibanaQueryBuilder);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 1, 1);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[0]._source.@timestamp", is("2015-05-18T11:03:22.877Z")),
+                withJsonPath("$.responses[0].hits.hits[0]._source.message", is(".log$output.")),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[*].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0].hits.total", is(1))
+                ))
+        );
     }
 
     @Test
@@ -374,7 +498,17 @@ public class SearchServiceIT {
         final SearchService logSearcher = new SearchService(restClient());
         final Response response = logSearcher.search(kibanaQueryBuilder);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 1, 1);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[0]._source.@timestamp", is("2015-05-18T11:03:22.877Z")),
+                withJsonPath("$.responses[0].hits.hits[0]._source.message", is(".log$output.")),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[*].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0].hits.total", is(1))
+                ))
+        );
+
     }
 
     @Test
@@ -390,7 +524,16 @@ public class SearchServiceIT {
         final SearchService logSearcher = new SearchService(restClient());
         final Response response = logSearcher.search(kibanaQueryBuilder);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 1, 1);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[0]._source.@timestamp", is("2015-05-18T11:03:22.877Z")),
+                withJsonPath("$.responses[0].hits.hits[0]._source.message", is(".log$output.")),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[*].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0].hits.total", is(1))
+                ))
+        );
     }
 
     @Test
@@ -406,7 +549,16 @@ public class SearchServiceIT {
         final SearchService logSearcher = new SearchService(restClient());
         final Response response = logSearcher.search(kibanaQueryBuilder);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 4, 4);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:24.877Z", "2015-05-18T11:03:26.877Z", "2015-05-18T11:03:27.877Z", "2015-05-18T11:03:25.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(" log output", " log output ", "vlog outputv", "log output ")),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(4)),
+                withJsonPath("$.responses[*].hits..message", hasSize(4)),
+                withJsonPath("$.responses[0].hits.total", is(4))
+                ))
+        );
     }
 
     @Test
@@ -422,7 +574,16 @@ public class SearchServiceIT {
         final SearchService logSearcher = new SearchService(restClient());
         final Response response = logSearcher.search(kibanaQueryBuilder);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 1, 1);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[0]._source.@timestamp", is("2015-05-18T11:03:26.877Z")),
+                withJsonPath("$.responses[0].hits.hits[0]._source.message", is(" log output ")),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[*].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0].hits.total", is(1))
+                ))
+        );
     }
 
     @Test
@@ -438,7 +599,16 @@ public class SearchServiceIT {
         final SearchService logSearcher = new SearchService(restClient());
         final Response response = logSearcher.search(kibanaQueryBuilder);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 1, 1);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[0]._source.@timestamp", is("2015-05-18T11:03:28.877Z")),
+                withJsonPath("$.responses[0].hits.hits[0]._source.message", is("log.output ")),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[*].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0].hits.total", is(1))
+                ))
+        );
     }
 
     @Test
@@ -453,8 +623,16 @@ public class SearchServiceIT {
 
         final SearchService logSearcher = new SearchService(restClient());
         final Response response = logSearcher.search(kibanaQueryBuilder);
-
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 2, 2);
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:28.877Z", "2015-05-18T11:03:28.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("$99.99.99.99 12.12.34  ", "99.99.99.99 12.12.34  ")),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(2)),
+                withJsonPath("$.responses[*].hits..message", hasSize(2)),
+                withJsonPath("$.responses[0].hits.total", is(2))
+                ))
+        );
     }
 
     @Test
@@ -470,24 +648,16 @@ public class SearchServiceIT {
         final SearchService logSearcher = new SearchService(restClient());
         final Response response = logSearcher.search(kibanaQueryBuilder);
 
-        printHitsAndMessages(EntityUtils.toString(response.getEntity()), 2, 2);
-    }
-
-    private void printHitsAndMessages(final String responseString, final int hits, final int messagesSize) {
-
-        final Integer hitsActual = JsonPath.read(responseString, "$.responses[0].hits.total");
-        final JSONArray messagesActualArray = JsonPath.read(responseString, "$.responses[0].hits..message");
-        final JSONArray timeStampActualArray = JsonPath.read(responseString, "$.responses[0].hits..@timestamp");
-
-        LOGGER.info("Hits:" + hitsActual);
-
-        for (int i = 0; i < messagesActualArray.size(); i++) {
-            LOGGER.info("Timestamp: " + timeStampActualArray.get(i) +
-                    "  Message:" + messagesActualArray.get(i).toString());
-        }
-
-        assertThat(hitsActual, is(hits));
-        assertThat(messagesActualArray.size(), is(messagesSize));
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:28.877Z", "2015-05-18T11:03:28.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("$99.99.99.99 12.12.34  ", "99.99.99.99 12.12.34  ")),
+                withJsonPath("$.responses[*].hits..@timestamp", hasSize(2)),
+                withJsonPath("$.responses[*].hits..message", hasSize(2)),
+                withJsonPath("$.responses[0].hits.total", is(2))
+                ))
+        );
     }
 
     private static class PluginConfigurableNode extends Node {

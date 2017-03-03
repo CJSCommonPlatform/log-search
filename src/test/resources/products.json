@@ -45,16 +45,16 @@
 {"index": { "_index": "elasticsearch","_type":"products"  }}
 { "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "$99.99.99.99 12.12.34  ","@timestamp":"2015-05-18T11:03:28.877Z" }
 { "index": { "_index": "elasticsearch","_type":"products"  }}
-{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": ".log$output.","@timestamp":"2015-05-18T11:03:28.877Z" }
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": ".log$output.","@timestamp":"2015-05-18T11:03:22.877Z" }
 { "index": { "_index": "elasticsearch","_type":"products"  }}
-{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "xlog$outputx","@timestamp":"2015-05-18T11:03:28.877Z" }
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "xlog$outputx","@timestamp":"2015-05-18T11:03:23.877Z" }
 { "index": { "_index": "elasticsearch","_type":"products"  }
-{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": " log output","@timestamp":"2015-05-18T11:03:28.877Z" }
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": " log output","@timestamp":"2015-05-18T11:03:24.877Z" }
 { "index": { "_index": "elasticsearch","_type":"products"  }
-{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "log output ","@timestamp":"2015-05-18T11:03:28.877Z" }
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "log output ","@timestamp":"2015-05-18T11:03:25.877Z" }
 { "index": { "_index": "elasticsearch","_type":"products"  }}
-{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": " log output ","@timestamp":"2015-05-18T11:03:28.877Z" }
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": " log output ","@timestamp":"2015-05-18T11:03:26.877Z" }
 { "index": { "_index": "elasticsearch","_type":"products"  }
-{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "vlog outputv","@timestamp":"2015-05-18T11:03:28.877Z" , "id": "sdsd"}
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "vlog outputv","@timestamp":"2015-05-18T11:03:27.877Z" , "id": "sdsd"}
 { "index": { "_index": "elasticsearch","_type":"products"  }
 { "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "log.output ","@timestamp":"2015-05-18T11:03:28.877Z" , "id": "sdsd"}
