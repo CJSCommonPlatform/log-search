@@ -48,6 +48,9 @@ public class SearchLogs extends AbstractLogSearcherCommand implements ShellComma
         try {
             this.searchParameters = new SearchParameters(strings[0], strings[1], strings[2], strings[3]);
             final PropertyReader propertyReader = new PropertyReader(searchParameters);
+            if (propertyReader.errors().size()>0){
+                throw new IllegalArgumentException(""+ propertyReader.errors());
+            }
             this.restConfig = propertyReader.restConfig();
             this.searchCriteria = propertyReader.searchCriteria();
             final Response response = searchService.search(kibanaQueryBuilder);

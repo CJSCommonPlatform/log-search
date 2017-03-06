@@ -56,7 +56,7 @@ public class PropertyReaderTest {
     public void shouldFailWhenUserListFileIsNotFound() throws IOException, ParseException {
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST);
         mockSetupForSearchCriteria(Arrays.asList("key1"), Arrays.asList("[2][0][2]", "[4][0][0]"), 0, FROM, TO);
-        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, "/Users/user.json", null));
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, "/Users/user.json", RESPONSE_PATH));
 
         assertThat(propertyReader.searchCriteria().getRegexes().size(), is(2));
         assertThat("User list file is not present at given location: " + "/Users/user.json", is(propertyReader.errors().get(0).trim()));
@@ -70,7 +70,7 @@ public class PropertyReaderTest {
         mockSetupForUserListFile();
 
 
-        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters("/xyz", SEARCH_PATH, USER_LIST_PATH, null));
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters("/xyz", SEARCH_PATH, USER_LIST_PATH, RESPONSE_PATH));
 
         assertThat(propertyReader.searchCriteria().getRegexes().size(), is(2));
         assertThat(propertyReader.errors().get(0).trim(), is("config.yaml is not present at given location: " + "/xyz"));
@@ -87,13 +87,13 @@ public class PropertyReaderTest {
         userData.put("u2", "p2");
         mockSetupForUserListFile();
 
-        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, USER_LIST_PATH, null));
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, USER_LIST_PATH, RESPONSE_PATH));
         assertThat(propertyReader.errors().size(), is(0));
     }
 
     @Test
     public void shouldPassWhenBothFilesFound() throws IOException, ParseException {
-        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, RESPONSE_PATH));
         assertThat(propertyReader.errors().size(), is(0));
     }
 
