@@ -177,6 +177,7 @@ public class SearchServiceIT {
 
         return mappings;
     }
+
     private static JsonObject templateMappingForAllStringTypeFields() {
         final JsonObject mappingContents = Json.createObjectBuilder().add("index", "not_analyzed").build();
         final JsonObject mapping = Json.createObjectBuilder().add("mapping", mappingContents).add("match", "message").build();
@@ -205,7 +206,7 @@ public class SearchServiceIT {
 
     @Test
     public void shouldFindCorrectHitsWhenSearchWordsWithSpaceInTheBeginingOnly() throws IOException {
-        mockSetupForSearchCriteria(Arrays.asList(" log output"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
+        mockSetupForSearchCriteria(Arrays.asList(" space in the beginning"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
@@ -220,7 +221,7 @@ public class SearchServiceIT {
 
         assertThat(responseString, isJson(allOf(
                 withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:26.877Z", "2015-05-18T11:03:24.877Z")),
-                withJsonPath("$.responses[0].hits.hits[*]..message", containsInAnyOrder(" log output", " log output ")),
+                withJsonPath("$.responses[0].hits.hits[*]..message", containsInAnyOrder(" space in the beginning space in the middle", " space in the beginning space in the middle space in the end ")),
                 withJsonPath("$.responses[0].hits..@timestamp", hasSize(2)),
                 withJsonPath("$.responses[0].hits..message", hasSize(2)),
                 withJsonPath("$.responses[0].hits.total", is(2))
@@ -444,8 +445,8 @@ public class SearchServiceIT {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInBeggining() throws IOException {
-        mockSetupForSearchCriteria(Arrays.asList(".log$output"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
+    public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInBegining() throws IOException {
+        mockSetupForSearchCriteria(Arrays.asList(".special$characterbeginining"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
@@ -460,7 +461,7 @@ public class SearchServiceIT {
         LOGGER.info(System.getProperty("line.separator") + responseString);
         assertThat(responseString, isJson(allOf(
                 withJsonPath("$.responses[0].hits.hits[*]._source.@timestamp", containsInAnyOrder("2015-05-18T11:03:22.877Z")),
-                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(".log$output.")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(".special$characterbeginining")),
                 withJsonPath("$.responses[0].hits..@timestamp", hasSize(1)),
                 withJsonPath("$.responses[0].hits..message", hasSize(1)),
                 withJsonPath("$.responses[0].hits..total", hasSize(1))
@@ -470,7 +471,7 @@ public class SearchServiceIT {
 
     @Test
     public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInEnd() throws IOException {
-        mockSetupForSearchCriteria(Arrays.asList("log$output."), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
+        mockSetupForSearchCriteria(Arrays.asList("xspecial$characterx."), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
@@ -484,8 +485,8 @@ public class SearchServiceIT {
         final String responseString = EntityUtils.toString(response.getEntity());
         LOGGER.info(System.getProperty("line.separator") + responseString);
         assertThat(responseString, isJson(allOf(
-                withJsonPath("$.responses[0].hits.hits[*]._source.@timestamp", containsInAnyOrder("2015-05-18T11:03:22.877Z")),
-                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(".log$output.")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.@timestamp", containsInAnyOrder("2015-05-18T11:03:23.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("xspecial$characterx.")),
                 withJsonPath("$.responses[0].hits..@timestamp", hasSize(1)),
                 withJsonPath("$.responses[0].hits..message", hasSize(1)),
                 withJsonPath("$.responses[0].hits..total", hasSize(1))
@@ -496,7 +497,7 @@ public class SearchServiceIT {
 
     @Test
     public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInBeginingAndEnd() throws IOException {
-        mockSetupForSearchCriteria(Arrays.asList(".log$output."), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
+        mockSetupForSearchCriteria(Arrays.asList(".special$characterbeginingandend."), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
@@ -511,7 +512,7 @@ public class SearchServiceIT {
         LOGGER.info(System.getProperty("line.separator") + responseString);
         assertThat(responseString, isJson(allOf(
                 withJsonPath("$.responses[0].hits.hits[*]._source.@timestamp", containsInAnyOrder("2015-05-18T11:03:22.877Z")),
-                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(".log$output.")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(".special$characterbeginingandend.")),
                 withJsonPath("$.responses[0].hits..@timestamp", hasSize(1)),
                 withJsonPath("$.responses[0].hits..message", hasSize(1)),
                 withJsonPath("$.responses[0].hits..total", hasSize(1))
@@ -521,7 +522,7 @@ public class SearchServiceIT {
 
     @Test
     public void shouldFindCorrectHitsWhenSearchWordsWithSpaceInTheMiddle() throws IOException {
-        mockSetupForSearchCriteria(Arrays.asList("log output"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
+        mockSetupForSearchCriteria(Arrays.asList("space in the middle"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
@@ -535,18 +536,18 @@ public class SearchServiceIT {
         final String responseString = EntityUtils.toString(response.getEntity());
         LOGGER.info(System.getProperty("line.separator") + responseString);
         assertThat(responseString, isJson(allOf(
-                withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:24.877Z", "2015-05-18T11:03:26.877Z", "2015-05-18T11:03:27.877Z", "2015-05-18T11:03:25.877Z")),
-                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(" log output", " log output ", "vlog outputv", "log output ")),
-                withJsonPath("$.responses[0].hits..@timestamp", hasSize(4)),
-                withJsonPath("$.responses[0].hits..message", hasSize(4)),
-                withJsonPath("$.responses[0].hits.total", is(4))
+                withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:27.877Z","2015-05-18T11:03:25.877Z", "2015-05-18T11:03:24.877Z", "2015-05-18T11:03:24.877Z", "2015-05-18T11:03:26.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("space in the middle", "vspace in the middlev"," space in the beginning space in the middle", "space in the middle space at the end ", " space in the beginning space in the middle space in the end ")),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(5)),
+                withJsonPath("$.responses[0].hits..message", hasSize(5)),
+                withJsonPath("$.responses[0].hits.total", is(5))
                 ))
         );
     }
 
     @Test
     public void shouldFindCorrectHitsWhenSearchWordsWithSpaceInTheBeginingMiddleAndEnd() throws IOException {
-        mockSetupForSearchCriteria(Arrays.asList(" log output "), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
+        mockSetupForSearchCriteria(Arrays.asList(" space in the beginning space in the middle space in the end "), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
@@ -561,7 +562,7 @@ public class SearchServiceIT {
         LOGGER.info(System.getProperty("line.separator") + responseString);
         assertThat(responseString, isJson(allOf(
                 withJsonPath("$.responses[0].hits.hits[*]._source.@timestamp", containsInAnyOrder("2015-05-18T11:03:26.877Z")),
-                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(" log output ")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(" space in the beginning space in the middle space in the end ")),
                 withJsonPath("$.responses[0].hits..@timestamp", hasSize(1)),
                 withJsonPath("$.responses[0].hits..message", hasSize(1)),
                 withJsonPath("$.responses[0]..hits.total", hasSize(1))
@@ -571,7 +572,7 @@ public class SearchServiceIT {
 
     @Test
     public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInMiddle() throws IOException {
-        mockSetupForSearchCriteria(Arrays.asList("log.output"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
+        mockSetupForSearchCriteria(Arrays.asList("space. in the middle with special characters"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z");
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
@@ -586,7 +587,7 @@ public class SearchServiceIT {
         LOGGER.info(System.getProperty("line.separator") + responseString);
         assertThat(responseString, isJson(allOf(
                 withJsonPath("$.responses[0].hits.hits[*]._source.@timestamp", containsInAnyOrder("2015-05-18T11:03:28.877Z")),
-                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("log.output ")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("space. in the middle with special characters ")),
                 withJsonPath("$.responses[0].hits..@timestamp", hasSize(1)),
                 withJsonPath("$.responses[0].hits..message", hasSize(1)),
                 withJsonPath("$.responses[0]..hits..total", hasSize(1))
@@ -645,7 +646,7 @@ public class SearchServiceIT {
 
     @Test
     public void shouldFindCorrectHitsWhenSearchedforContainingWords() throws IOException {
-        mockSetupForSearchCriteria(Arrays.asList("cap "), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:40.879Z");
+        mockSetupForSearchCriteria(Arrays.asList("containingword "), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:40.879Z");
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
@@ -660,7 +661,7 @@ public class SearchServiceIT {
         LOGGER.info(System.getProperty("line.separator") + responseString);
         assertThat(responseString, isJson(allOf(
                 withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:28.877Z", "2015-05-18T11:03:27.877Z")),
-                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("cap ", "headcap ")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("containingword ", "prefixedcontainingword ")),
                 withJsonPath("$.responses[0].hits..@timestamp", hasSize(2)),
                 withJsonPath("$.responses[0].hits..message", hasSize(2)),
                 withJsonPath("$.responses[0].hits.total", is(2))
