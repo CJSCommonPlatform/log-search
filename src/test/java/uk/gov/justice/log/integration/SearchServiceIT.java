@@ -167,33 +167,16 @@ public class SearchServiceIT {
         new Yaml().dump(data, new FileWriter(SEARCH_PATH));
     }
 
-    /*
-    curl -XPUT 'localhost:9200/_template/all' -d '
-{
-        "order": 0,
-        "template": "*",
-        "settings": {
-            "index.number_of_shards": "1"
-        },
-        "mappings": {
-            "_default_": {
-                "dynamic_templates": [
-                    {
-                        "string": {
-                            "mapping": {
-                                "index": "not_analyzed",
-                                "type": "string"
-                            },
-                            "match_mapping_type": "string"
-                        }
-                    }
-                ]
-            }
-        },
-        "aliases": {}
+    private static JsonObject mappings() {
+
+        final JsonObject type = Json.createObjectBuilder().add("type", "keyword").build();
+        final JsonObject productId = Json.createObjectBuilder().add("message", type).build();
+        final JsonObject properties = Json.createObjectBuilder().add("properties", productId).build();
+        final JsonObject products = Json.createObjectBuilder().add("elasticsearch", properties).build();
+        final JsonObject mappings = Json.createObjectBuilder().add("mappings", products).build();
+
+        return mappings;
     }
-}
-     */
     private static JsonObject templateMappingForAllStringTypeFields() {
         final JsonObject mappingContents = Json.createObjectBuilder().add("index", "not_analyzed").build();
         final JsonObject mapping = Json.createObjectBuilder().add("mapping", mappingContents).add("match", "message").build();
@@ -207,7 +190,7 @@ public class SearchServiceIT {
     }
 
     private static void createMapping() throws IOException {
-        final String mappings = templateMappingForAllStringTypeFields().toString();
+        final String mappings = mappings().toString();
         final HttpEntity mappingEntity = new NStringEntity(mappings, APPLICATION_JSON);
 
         restClient().performRequest(PUT, ELASTIC_SEARCH_CLUSTER_URL, Collections.emptyMap(), mappingEntity);
@@ -238,8 +221,8 @@ public class SearchServiceIT {
         assertThat(responseString, isJson(allOf(
                 withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:26.877Z", "2015-05-18T11:03:24.877Z")),
                 withJsonPath("$.responses[0].hits.hits[*]..message", containsInAnyOrder(" log output", " log output ")),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(2)),
-                withJsonPath("$.responses[*].hits..message", hasSize(2)),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(2)),
+                withJsonPath("$.responses[0].hits..message", hasSize(2)),
                 withJsonPath("$.responses[0].hits.total", is(2))
                 ))
         );
@@ -260,8 +243,8 @@ public class SearchServiceIT {
         final String responseString = EntityUtils.toString(response.getEntity());
         LOGGER.info(System.getProperty("line.separator") + responseString);
         assertThat(responseString, isJson(allOf(
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(0)),
-                withJsonPath("$.responses[*].hits..message", hasSize(0)),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(0)),
+                withJsonPath("$.responses[0].hits..message", hasSize(0)),
                 withJsonPath("$.responses[0].hits.total", is(0))
                 ))
         );
@@ -291,8 +274,8 @@ public class SearchServiceIT {
                         "TESTUSER12, ADMINUSER12, PASSWORD12, USERNAME12, USER12, PASSWORD12",
                         "TESTADMINUSER12$1, ADMINTESTYUSER12$1, PASSWORD12$1, USERNAME12$1, USER12$1, PASSWORD12$1")),
 
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(5)),
-                withJsonPath("$.responses[*].hits..message", hasSize(5)),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(5)),
+                withJsonPath("$.responses[0].hits..message", hasSize(5)),
                 withJsonPath("$.responses[0].hits.total", is(5))
                 ))
         );
@@ -317,8 +300,8 @@ public class SearchServiceIT {
         assertThat(responseString, isJson(allOf(
                 withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-17T09:03:25.877Z")),
                 withJsonPath("$.responses[0].hits.hits[*]..message", containsInAnyOrder("testuser, adminpassword, username, user, password,")),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
-                withJsonPath("$.responses[*].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[0].hits..message", hasSize(1)),
                 withJsonPath("$.responses[0].hits.total", is(1))
                 ))
         );
@@ -342,8 +325,8 @@ public class SearchServiceIT {
         assertThat(responseString, isJson(allOf(
                 withJsonPath("$.responses[0].hits.hits[*]._source.@timestamp", containsInAnyOrder("2015-05-17T09:03:25.877Z")),
                 withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("testuser, adminpassword, username, user, password,")),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
-                withJsonPath("$.responses[*].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[0].hits..message", hasSize(1)),
                 withJsonPath("$.responses[0].hits.total", is(1))
                 ))
         );
@@ -387,8 +370,8 @@ public class SearchServiceIT {
                         "TES, ADMIN, PASS, USERNAME12$1, USER12$1, PASSWORD12$1 127.0.0.1:41388",
                         "99.99.99.99 12.12.34  ",
                         "10 12 34 34 12.12.34.34 ")),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(10)),
-                withJsonPath("$.responses[*].hits..message", hasSize(10)),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(10)),
+                withJsonPath("$.responses[0].hits..message", hasSize(10)),
                 withJsonPath("$.responses[0].hits.total", is(10))
                 ))
         );
@@ -419,8 +402,8 @@ public class SearchServiceIT {
                         "10$12$34$34 12.12.34.34 ", "99.99.99.99 12.12.34  ", "$99.99.99.99 12.12.34  ", "testuser, adminpassword, username, user, password,", " 192.12.123.4 10.12.34  ",
                         "10.12.34.34 12.12.34  ", "10.12.244.123 10.12.34.34 ", "10.12.34.34 12.12.34  "
                 )),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(11)),
-                withJsonPath("$.responses[*].hits..message", hasSize(11)),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(11)),
+                withJsonPath("$.responses[0].hits..message", hasSize(11)),
                 withJsonPath("$.responses[0].hits.total", is(11))
                 ))
         );
@@ -453,8 +436,8 @@ public class SearchServiceIT {
                         "10.12.244.123 10.12.34.34 ", "10$12$34$34 12.12.34.34 ", "10.12.34.34 12.12.34  ", "99.99.99.99 12.12.34  ",
                         " 192.12.123.4 10.12.34  ", "10.12.34.34 12.12.34  ", "$99.99.99.99 12.12.34  ", "TES, ADMIN, PASS, USERNAME12$1, USER12$1, PASSWORD12$1 127.0.0.1:41388"
                 )),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(10)),
-                withJsonPath("$.responses[*].hits..message", hasSize(10)),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(10)),
+                withJsonPath("$.responses[0].hits..message", hasSize(10)),
                 withJsonPath("$.responses[0].hits.total", is(10))
                 ))
         );
@@ -476,11 +459,11 @@ public class SearchServiceIT {
         final String responseString = EntityUtils.toString(response.getEntity());
         LOGGER.info(System.getProperty("line.separator") + responseString);
         assertThat(responseString, isJson(allOf(
-                withJsonPath("$.responses[0].hits.hits[0]._source.@timestamp", is("2015-05-18T11:03:22.877Z")),
-                withJsonPath("$.responses[0].hits.hits[0]._source.message", is(".log$output.")),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
-                withJsonPath("$.responses[*].hits..message", hasSize(1)),
-                withJsonPath("$.responses[0].hits.total", is(1))
+                withJsonPath("$.responses[0].hits.hits[*]._source.@timestamp", containsInAnyOrder("2015-05-18T11:03:22.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(".log$output.")),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[0].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0].hits..total", hasSize(1))
                 ))
         );
     }
@@ -501,11 +484,11 @@ public class SearchServiceIT {
         final String responseString = EntityUtils.toString(response.getEntity());
         LOGGER.info(System.getProperty("line.separator") + responseString);
         assertThat(responseString, isJson(allOf(
-                withJsonPath("$.responses[0].hits.hits[0]._source.@timestamp", is("2015-05-18T11:03:22.877Z")),
-                withJsonPath("$.responses[0].hits.hits[0]._source.message", is(".log$output.")),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
-                withJsonPath("$.responses[*].hits..message", hasSize(1)),
-                withJsonPath("$.responses[0].hits.total", is(1))
+                withJsonPath("$.responses[0].hits.hits[*]._source.@timestamp", containsInAnyOrder("2015-05-18T11:03:22.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(".log$output.")),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[0].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0].hits..total", hasSize(1))
                 ))
         );
 
@@ -527,11 +510,11 @@ public class SearchServiceIT {
         final String responseString = EntityUtils.toString(response.getEntity());
         LOGGER.info(System.getProperty("line.separator") + responseString);
         assertThat(responseString, isJson(allOf(
-                withJsonPath("$.responses[0].hits.hits[0]._source.@timestamp", is("2015-05-18T11:03:22.877Z")),
-                withJsonPath("$.responses[0].hits.hits[0]._source.message", is(".log$output.")),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
-                withJsonPath("$.responses[*].hits..message", hasSize(1)),
-                withJsonPath("$.responses[0].hits.total", is(1))
+                withJsonPath("$.responses[0].hits.hits[*]._source.@timestamp", containsInAnyOrder("2015-05-18T11:03:22.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(".log$output.")),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[0].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0].hits..total", hasSize(1))
                 ))
         );
     }
@@ -554,8 +537,8 @@ public class SearchServiceIT {
         assertThat(responseString, isJson(allOf(
                 withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:24.877Z", "2015-05-18T11:03:26.877Z", "2015-05-18T11:03:27.877Z", "2015-05-18T11:03:25.877Z")),
                 withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(" log output", " log output ", "vlog outputv", "log output ")),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(4)),
-                withJsonPath("$.responses[*].hits..message", hasSize(4)),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(4)),
+                withJsonPath("$.responses[0].hits..message", hasSize(4)),
                 withJsonPath("$.responses[0].hits.total", is(4))
                 ))
         );
@@ -577,11 +560,11 @@ public class SearchServiceIT {
         final String responseString = EntityUtils.toString(response.getEntity());
         LOGGER.info(System.getProperty("line.separator") + responseString);
         assertThat(responseString, isJson(allOf(
-                withJsonPath("$.responses[0].hits.hits[0]._source.@timestamp", is("2015-05-18T11:03:26.877Z")),
-                withJsonPath("$.responses[0].hits.hits[0]._source.message", is(" log output ")),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
-                withJsonPath("$.responses[*].hits..message", hasSize(1)),
-                withJsonPath("$.responses[0].hits.total", is(1))
+                withJsonPath("$.responses[0].hits.hits[*]._source.@timestamp", containsInAnyOrder("2015-05-18T11:03:26.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder(" log output ")),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[0].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0]..hits.total", hasSize(1))
                 ))
         );
     }
@@ -602,11 +585,11 @@ public class SearchServiceIT {
         final String responseString = EntityUtils.toString(response.getEntity());
         LOGGER.info(System.getProperty("line.separator") + responseString);
         assertThat(responseString, isJson(allOf(
-                withJsonPath("$.responses[0].hits.hits[0]._source.@timestamp", is("2015-05-18T11:03:28.877Z")),
-                withJsonPath("$.responses[0].hits.hits[0]._source.message", is("log.output ")),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(1)),
-                withJsonPath("$.responses[*].hits..message", hasSize(1)),
-                withJsonPath("$.responses[0].hits.total", is(1))
+                withJsonPath("$.responses[0].hits.hits[*]._source.@timestamp", containsInAnyOrder("2015-05-18T11:03:28.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("log.output ")),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(1)),
+                withJsonPath("$.responses[0].hits..message", hasSize(1)),
+                withJsonPath("$.responses[0]..hits..total", hasSize(1))
                 ))
         );
     }
@@ -628,8 +611,8 @@ public class SearchServiceIT {
         assertThat(responseString, isJson(allOf(
                 withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:28.877Z", "2015-05-18T11:03:28.877Z")),
                 withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("$99.99.99.99 12.12.34  ", "99.99.99.99 12.12.34  ")),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(2)),
-                withJsonPath("$.responses[*].hits..message", hasSize(2)),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(2)),
+                withJsonPath("$.responses[0].hits..message", hasSize(2)),
                 withJsonPath("$.responses[0].hits.total", is(2))
                 ))
         );
@@ -653,8 +636,33 @@ public class SearchServiceIT {
         assertThat(responseString, isJson(allOf(
                 withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:28.877Z", "2015-05-18T11:03:28.877Z")),
                 withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("$99.99.99.99 12.12.34  ", "99.99.99.99 12.12.34  ")),
-                withJsonPath("$.responses[*].hits..@timestamp", hasSize(2)),
-                withJsonPath("$.responses[*].hits..message", hasSize(2)),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(2)),
+                withJsonPath("$.responses[0].hits..message", hasSize(2)),
+                withJsonPath("$.responses[0].hits.total", is(2))
+                ))
+        );
+    }
+
+    @Test
+    public void shouldFindCorrectHitsWhenSearchedforContainingWords() throws IOException {
+        mockSetupForSearchCriteria(Arrays.asList("cap "), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:40.879Z");
+
+        final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_PATH, SEARCH_PATH, null, null));
+        searchCriteria = propertyReader.searchCriteria();
+        restConfig = propertyReader.restConfig();
+
+        final KibanaQueryBuilder kibanaQueryBuilder = new KibanaQueryBuilder(searchCriteria);
+
+        final SearchService logSearcher = new SearchService(restClient());
+        final Response response = logSearcher.search(kibanaQueryBuilder);
+
+        final String responseString = EntityUtils.toString(response.getEntity());
+        LOGGER.info(System.getProperty("line.separator") + responseString);
+        assertThat(responseString, isJson(allOf(
+                withJsonPath("$.responses[0].hits.hits[*]..@timestamp", containsInAnyOrder("2015-05-18T11:03:28.877Z", "2015-05-18T11:03:27.877Z")),
+                withJsonPath("$.responses[0].hits.hits[*]._source.message", containsInAnyOrder("cap ", "headcap ")),
+                withJsonPath("$.responses[0].hits..@timestamp", hasSize(2)),
+                withJsonPath("$.responses[0].hits..message", hasSize(2)),
                 withJsonPath("$.responses[0].hits.total", is(2))
                 ))
         );

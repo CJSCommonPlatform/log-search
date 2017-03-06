@@ -82,3 +82,4 @@ src/test/resources/logs.json
 src/test/resources/searchunit.yaml
 src/test/resources/config.yaml
 src/test/resources/search.yaml
+results.html
