@@ -1,16 +1,27 @@
 package uk.gov.justice.log.utils;
 
-public class SearchParameters {
+public class SearchConfig {
     private final String responseOutputPath;
     private final String configFilePath;
     private final String userListFilePath;
     private final String searchCriteriaPath;
+    private final String displayConsoleMessages;
 
-    public SearchParameters(String configFilePath, String searchCriteriaPath, String userListFilePath, String responseOutputPath) {
-        this.responseOutputPath = responseOutputPath;
+    public String getDisplayConsoleMessages() {
+        return displayConsoleMessages;
+    }
+
+    public SearchConfig(final String configFilePath,
+                        final String searchCriteriaPath,
+                        final String userListFilePath,
+                        final String responseOutputPath,
+
+                        final String displayConsoleMessages) {
         this.configFilePath = configFilePath;
-        this.userListFilePath = userListFilePath;
         this.searchCriteriaPath = searchCriteriaPath;
+        this.userListFilePath = userListFilePath;
+        this.responseOutputPath = responseOutputPath;
+        this.displayConsoleMessages = displayConsoleMessages;
     }
 
     public String getResponseOutputPath() {
@@ -28,6 +39,4 @@ public class SearchParameters {
     public String getSearchCriteriaPath() {
         return searchCriteriaPath;
     }
-
-
 }

@@ -1,23 +1,33 @@
 package uk.gov.justice.log.search.main.output;
 
-import net.minidev.json.JSONArray;
+import static uk.gov.justice.log.utils.SearchConstants.MESSAGE_RESULT;
+import static uk.gov.justice.log.utils.SearchConstants.YES;
+
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
 
 public class ConsolePrinter extends OutputPrinter {
+    private String displayConsoleMessages = YES;
+
+    public ConsolePrinter(final String displayConsoleMessages) {
+        if (displayConsoleMessages != null) {
+            this.displayConsoleMessages = displayConsoleMessages.trim().toLowerCase();
+        }
+    }
 
     @Override
-    public void write(final String message) {
+    public void write(final JsonObject message) {
         System.out.println(message);
     }
 
     @Override
-    public void writeMessages(final String query, final String fromTime, final String toTime,
-                              final String hits, final JSONArray messageData) {
-        System.out.println("Search From : " + fromTime);
-        System.out.println("Search To : " + toTime);
-        System.out.println("Query: " + query);
-        System.out.println("Hits: " + hits);
-        System.out.println(jsonStringOf(messageData));
+    public void writeMessages(final JsonObjectBuilder objectBuilder,
+                              final Result result) {
+        if (displayConsoleMessages.equalsIgnoreCase(YES)) {
+            System.out.println(MESSAGE_RESULT + jsonOf(objectBuilder, result));
+        } else {
+            System.out.println("Hits: " + result.getHits());
+        }
     }
-
-
 }

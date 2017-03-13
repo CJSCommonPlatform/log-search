@@ -4,9 +4,9 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
-import static uk.gov.justice.log.utils.CommonConstant.MINS_TO_MILLIS_MULTIPLIER;
+import static uk.gov.justice.log.utils.SearchConstants.MINS_TO_MILLIS_MULTIPLIER;
 
-import uk.gov.justice.log.wrapper.InstantWrapper;
+import uk.gov.justice.log.utils.SearchConstants;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -29,22 +29,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(MockitoJUnitRunner.class)
-public class KibanaQueryBuilderTest {
+public class ElasticSearchQueryBuilderFactoryTest {
 
     private static final int DURATION_MINUTES = 60;
     private static final Instant now = Instant.now();
     @Mock
-    InstantWrapper instantWrapper;
+    SearchConstants.InstantGenerator instantGenerator;
     @Mock
     SearchCriteria searchCriteria;
     @InjectMocks
-    KibanaQueryBuilder kibanaQueryBuilder;
-    private Logger LOGGER = LoggerFactory.getLogger(KibanaQueryBuilderTest.class);
+    ElasticSearchQueryBuilder elasticSearchQueryBuilder;
+    private Logger LOGGER = LoggerFactory.getLogger(ElasticSearchQueryBuilderFactoryTest.class);
 
     @Before
     public void setUp() {
-        kibanaQueryBuilder.setInstantWrapper(instantWrapper);
-        when(instantWrapper.now()).thenReturn(now);
+        elasticSearchQueryBuilder.setInstantGenerator(instantGenerator);
+        when(instantGenerator.now()).thenReturn(now);
         when(searchCriteria.getDurationMinutes()).thenReturn(DURATION_MINUTES);
         when(searchCriteria.getResponseSize()).thenReturn(50);
     }
@@ -69,7 +69,7 @@ public class KibanaQueryBuilderTest {
         final long expectedTo = now.toEpochMilli();
         final long expectedFrom = now.minusMillis(durationMillis).toEpochMilli();
 
-        final HttpEntity queryJson = kibanaQueryBuilder.entityQuery();
+        final HttpEntity queryJson = elasticSearchQueryBuilder.entityQuery();
         final String queryJsonBody = EntityUtils.toString(queryJson).substring(3);
 
         final JSONArray from = JsonPath.read(queryJsonBody, "$.query..range.@timestamp.gte");
@@ -86,8 +86,8 @@ public class KibanaQueryBuilderTest {
         final int durationMinutes = 60;
 
         final Instant now = Instant.now();
-        kibanaQueryBuilder.setInstantWrapper(instantWrapper);
-        when(instantWrapper.now()).thenReturn(now);
+        elasticSearchQueryBuilder.setInstantGenerator(instantGenerator);
+        when(instantGenerator.now()).thenReturn(now);
 
         final List<String> keywords = new ArrayList<>();
         keywords.add("202");
@@ -104,7 +104,7 @@ public class KibanaQueryBuilderTest {
         final long expectedFrom = now.minusMillis(durationMillis).toEpochMilli();
 
         final String queryExpected = "{}\n{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*\\\"202\\\".*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
-        final NStringEntity stringEntity = (NStringEntity) kibanaQueryBuilder.entityQuery();
+        final NStringEntity stringEntity = (NStringEntity) elasticSearchQueryBuilder.entityQuery();
 
         LOGGER.info(queryStr(stringEntity));
         assertThat(queryStr(stringEntity), is(queryExpected));
@@ -117,8 +117,8 @@ public class KibanaQueryBuilderTest {
         final int durationMinutes = 60;
 
         final Instant now = Instant.now();
-        kibanaQueryBuilder.setInstantWrapper(instantWrapper);
-        when(instantWrapper.now()).thenReturn(now);
+        elasticSearchQueryBuilder.setInstantGenerator(instantGenerator);
+        when(instantGenerator.now()).thenReturn(now);
 
         final List<String> keywords = new ArrayList<>();
         keywords.add("202");
@@ -137,7 +137,7 @@ public class KibanaQueryBuilderTest {
 
         final String queryExpected = "{}\n{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*\\\"202\\\".*\"}},{\"regexp\":{\"message\":\".*\\\"404\\\".*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
 
-        final NStringEntity stringEntity = (NStringEntity) kibanaQueryBuilder.entityQuery();
+        final NStringEntity stringEntity = (NStringEntity) elasticSearchQueryBuilder.entityQuery();
         final String queryActual = queryStr(stringEntity);
         LOGGER.info(queryActual);
         assertThat(queryActual, is(queryExpected));
@@ -150,8 +150,8 @@ public class KibanaQueryBuilderTest {
         final int durationMinutes = 60;
 
         final Instant now = Instant.now();
-        kibanaQueryBuilder.setInstantWrapper(instantWrapper);
-        when(instantWrapper.now()).thenReturn(now);
+        elasticSearchQueryBuilder.setInstantGenerator(instantGenerator);
+        when(instantGenerator.now()).thenReturn(now);
 
         final List<String> keywords = new ArrayList<>();
         keywords.add("202");
@@ -172,7 +172,7 @@ public class KibanaQueryBuilderTest {
 
         final String regexpExpectedString = "{}\n{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*[2][0][2].*\"}},{\"regexp\":{\"message\":\".*\\\"202\\\".*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
 
-        final NStringEntity stringEntity = (NStringEntity) kibanaQueryBuilder.entityQuery();
+        final NStringEntity stringEntity = (NStringEntity) elasticSearchQueryBuilder.entityQuery();
         LOGGER.info(queryStr(stringEntity));
         assertThat(queryStr(stringEntity), is(regexpExpectedString));
     }
@@ -181,9 +181,9 @@ public class KibanaQueryBuilderTest {
     public void shouldSearchWithMultipleRegex() throws IOException {
         final int durationMinutes = 60;
         final Instant now = Instant.now();
-        kibanaQueryBuilder.setInstantWrapper(instantWrapper);
+        elasticSearchQueryBuilder.setInstantGenerator(instantGenerator);
 
-        when(instantWrapper.now()).thenReturn(now);
+        when(instantGenerator.now()).thenReturn(now);
 
         final List<String> keywords = new ArrayList<>();
         keywords.add("202");
@@ -202,7 +202,7 @@ public class KibanaQueryBuilderTest {
         final long expectedFrom = now.minusMillis(durationMillis).toEpochMilli();
         final String regexpExpectedString = "{}\n{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*[2][0][2].*\"}},{\"regexp\":{\"message\":\".*[4][0][4].*\"}},{\"regexp\":{\"message\":\".*\\\"202\\\".*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
 
-        final NStringEntity stringEntity = (NStringEntity) kibanaQueryBuilder.entityQuery();
+        final NStringEntity stringEntity = (NStringEntity) elasticSearchQueryBuilder.entityQuery();
         LOGGER.info(queryStr(stringEntity));
         assertThat(queryStr(stringEntity), is(regexpExpectedString));
     }

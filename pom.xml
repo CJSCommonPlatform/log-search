@@ -12,12 +12,13 @@
 
     <groupId>uk.gov.justice.log</groupId>
     <artifactId>log-search</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <properties>
-        <common-bom.version>1.5.1</common-bom.version>
+        <common-bom.version>1.14.0-SNAPSHOT</common-bom.version>
         <default.duration.seconds>1</default.duration.seconds>
-        <framework-tools-command.version>1.0.0</framework-tools-command.version>
+        <framework-version>1.4.1</framework-version>
+        <elasticsearch.keepalive>true</elasticsearch.keepalive>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -30,13 +31,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
-        <dependency>
-            <groupId>uk.gov.justice</groupId>
-            <artifactId>framework-tools-command</artifactId>
-            <version>${framework-tools-command.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.json</artifactId>
@@ -60,14 +55,8 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.7</version>
-        </dependency>
-        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -98,7 +87,7 @@
         <dependency>
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>common</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${framework-version}</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -108,27 +97,18 @@
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>rest</artifactId>
-            <version>RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch.plugin</groupId>
             <artifactId>transport-netty4-client</artifactId>
-            <version>RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>json-path</artifactId>
-            <version>2.5.0</version>
-        </dependency>
-        <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-            <version>2.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
@@ -136,50 +116,39 @@
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>java-hamcrest</artifactId>
-            <version>2.0.0.0</version>
+            <artifactId>hamcrest-core</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>uk.gov.justice.services</groupId>
-            <artifactId>test-utils-core</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path-assert</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-csv</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <finalName>${project.name}</finalName>
         <plugins>
-            <!--
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptors>
-                        <descriptor>src/assembly/assembly.xml</descriptor>
-                    </descriptors>
-                    <archive>
-                        <manifest>
-                            <mainClass>uk.gov.justice.framework.tools.common.command.Bootstrap
-                            </mainClass>
-                        </manifest>
-                    </archive>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -189,42 +158,62 @@
                         <configuration>
                             <transformers>
                                 <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                                <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>
-                                        uk.gov.justice.framework.tools.common.command.Bootstrap
+                                        uk.gov.justice.log.main.SearchLogs
                                     </mainClass>
-                                    <manifestEntries>
-                                        <Change></Change>
-                                        <Build-Date></Build-Date>
-                                    </manifestEntries>
                                 </transformer>
                             </transformers>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.github.alexcojocaru</groupId>
+                <artifactId>elasticsearch-maven-plugin</artifactId>
+                <version>5.5</version>
+                <configuration>
+                    <clusterName>test</clusterName>
+                    <httpPort>9205</httpPort>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start-elasticsearch</id>
+                        <phase>pre-integration-test</phase>
+                        <configuration>
+                            <setAwait>false</setAwait>
+                            <logLevel>INFO</logLevel>
+                        </configuration>
+                        <goals>
+                            <goal>runforked</goal>
+                        </goals>
+                    </execution>
 
+                    <execution>
+                        <id>stop-elasticsearch</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
                 <configuration>
-                    <encoding>UTF-8</encoding>
+                    <includes>
+                        <include>/*/**/SearchLogsIT.java,</include>
+                    </includes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
-        <resources>
-            <resource>
-                <directory>../src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
     </build>
-
-
 </project>

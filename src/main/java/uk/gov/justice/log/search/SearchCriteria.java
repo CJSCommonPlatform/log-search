@@ -1,14 +1,13 @@
 package uk.gov.justice.log.search;
 
-import uk.gov.justice.log.utils.CommonConstant;
+import uk.gov.justice.log.utils.SearchConstants;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SearchCriteria {
     private int durationMinutes;
     private List<String> keywords;
-    private List<String> regexes = new ArrayList<>();
+    private List<String> regexes;
     private int responseSize;
     private String fromTime;
     private String toTime;
@@ -82,7 +81,7 @@ public class SearchCriteria {
 
     public int getResponseSize() {
         if (responseSize == 0) {
-            return CommonConstant.DEFAULT_RESPONSE_OUTPUT_SIZE;
+            return SearchConstants.DEFAULT_RESPONSE_OUTPUT_SIZE;
         }
         return responseSize;
     }

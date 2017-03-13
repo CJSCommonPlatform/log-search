@@ -2,10 +2,10 @@ package uk.gov.justice.log.search;
 
 
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
-import static uk.gov.justice.log.utils.CommonConstant.MINS_TO_MILLIS_MULTIPLIER;
-import static uk.gov.justice.log.utils.CommonConstant.NEW_LINE;
+import static uk.gov.justice.log.utils.SearchConstants.MINS_TO_MILLIS_MULTIPLIER;
+import static uk.gov.justice.log.utils.SearchConstants.NEW_LINE;
 
-import uk.gov.justice.log.wrapper.InstantWrapper;
+import uk.gov.justice.log.utils.SearchConstants;
 
 import java.time.Instant;
 import java.util.List;
@@ -13,16 +13,16 @@ import java.util.List;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.nio.entity.NStringEntity;
 
-public class KibanaQueryBuilder {
+public class ElasticSearchQueryBuilder {
     private static final String FROM = "gte";
     private static final String TO = "lte";
     private static final String RANGE = "range";
-    private static final String MATCH = "match";
     private static final String QUERY_KEY = "query";
     private static final String REGEXP = "regexp";
     private static final String MUST = "must";
@@ -33,13 +33,12 @@ public class KibanaQueryBuilder {
     private static final String FILTER = "filter";
     private static final String TIMESTAMP_FIELD = "@timestamp";
     private static final String MESSAGE_FIELD = "message";
-    private InstantWrapper instantWrapper = new InstantWrapper();
-    private SearchCriteria searchCriteria;
-    private String query = "";
-
+    private final SearchCriteria searchCriteria;
+    private SearchConstants.InstantGenerator instantGenerator = new SearchConstants.InstantGenerator();
+    private String query;
     private HttpEntity entityQuery;
 
-    public KibanaQueryBuilder(final SearchCriteria searchCriteria) {
+    public ElasticSearchQueryBuilder(final SearchCriteria searchCriteria) {
         this.searchCriteria = searchCriteria;
     }
 
@@ -75,8 +74,8 @@ public class KibanaQueryBuilder {
             searchTo = Instant.parse(toStr).toEpochMilli();
         } else {
             final int rangeDuration = searchCriteria.getDurationMinutes();
-            searchFrom = instantWrapper.now().minusMillis(rangeDuration * MINS_TO_MILLIS_MULTIPLIER).toEpochMilli();
-            searchTo = instantWrapper.now().toEpochMilli();
+            searchFrom = instantGenerator.now().minusMillis(rangeDuration * MINS_TO_MILLIS_MULTIPLIER).toEpochMilli();
+            searchTo = instantGenerator.now().toEpochMilli();
             searchCriteria.setFromTime(Instant.ofEpochMilli(searchFrom).toString());
             searchCriteria.setToTime(Instant.ofEpochMilli(searchTo).toString());
         }
@@ -96,10 +95,10 @@ public class KibanaQueryBuilder {
     }
 
     private JsonObject body(final JsonValue queryValue) {
-        final JsonObject bool = Json.createObjectBuilder().add(SHOULD, queryValue).add(MUST, range()).build();
-        final JsonObject boolQuery = Json.createObjectBuilder().add(BOOL, bool).build();
-        final JsonObject filter = Json.createObjectBuilder().add(FILTER, boolQuery).build();
-        final JsonObject constantSore = Json.createObjectBuilder().add(CONSTANT_SCORE, filter).build();
+        final JsonObjectBuilder bool = Json.createObjectBuilder().add(SHOULD, queryValue).add(MUST, range());
+        final JsonObjectBuilder boolQuery = Json.createObjectBuilder().add(BOOL, bool);
+        final JsonObjectBuilder filter = Json.createObjectBuilder().add(FILTER, boolQuery);
+        final JsonObjectBuilder constantSore = Json.createObjectBuilder().add(CONSTANT_SCORE, filter);
         return Json.createObjectBuilder().add(SIZE, searchCriteria.getResponseSize()).add(QUERY_KEY, constantSore).build();
     }
 
@@ -108,8 +107,8 @@ public class KibanaQueryBuilder {
         return query;
     }
 
-    public void setInstantWrapper(final InstantWrapper instantWrapper) {
-        this.instantWrapper = instantWrapper;
+    public void setInstantGenerator(final SearchConstants.InstantGenerator instantGenerator) {
+        this.instantGenerator = instantGenerator;
     }
 
     public String query() {
@@ -119,5 +118,9 @@ public class KibanaQueryBuilder {
     public HttpEntity entityQuery() {
         this.entityQuery = new NStringEntity(getKeywordsAndRegexesToQuery(), APPLICATION_JSON);
         return entityQuery;
+    }
+
+    public SearchCriteria searchCriteria() {
+        return searchCriteria;
     }
 }

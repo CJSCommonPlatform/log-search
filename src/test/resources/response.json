@@ -1,0 +1,38 @@
+{
+  "responses": [
+    {
+      "took": 7,
+      "timed_out": false,
+      "_shards": {
+        "total": 50,
+        "successful": 50,
+        "failed": 0
+      },
+      "hits": {
+        "total": 1,
+        "max_score": 1.9037392,
+        "hits": [
+          {
+            "_index": "c2i-2017.02.02",
+            "_type": "wildfly",
+            "_id": "AVn_VDtH4n7ceZwIHKjr",
+            "_score": 1.9037392,
+            "_source": {
+              "@timestamp": "2017-02-02T14:57:00.620Z",
+              "@version": "1",
+              "path": "/opt/wildfly/standalone/log/server.log",
+              "host": "embixdapbe01.dev2.cloud.local",
+              "type": "wildfly",
+              "project": "c2i",
+              "environment": "embixd",
+              "message": "202",
+              "hostgroup": "CP1_env_embixd",
+              "timestamp": "2015-05-17T06:03:20.877Z",
+              "severity": "INFO"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

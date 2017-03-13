@@ -1,8 +1,8 @@
 package uk.gov.justice.log.search;
 
 
-import static uk.gov.justice.log.utils.CommonConstant.ELASTIC_MULTI_SEARCH_URL;
-import static uk.gov.justice.log.utils.CommonConstant.POST;
+import static uk.gov.justice.log.utils.SearchConstants.ELASTIC_MULTI_SEARCH_URL;
+import static uk.gov.justice.log.utils.SearchConstants.POST;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -19,18 +19,19 @@ import org.slf4j.LoggerFactory;
 public class SearchService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
-
-    private RestClient restClient;
-
+    private final RestClient restClient;
+    private final ElasticSearchQueryBuilder elasticSearchQueryBuilder;
     private Map<String, String> params = Collections.emptyMap();
 
-    public SearchService(final RestClient restClient) {
+    public SearchService(final RestClient restClient,
+                         final ElasticSearchQueryBuilder elasticSearchQueryBuilder) {
         this.restClient = restClient;
+        this.elasticSearchQueryBuilder = elasticSearchQueryBuilder;
     }
 
-    public Response search(final KibanaQueryBuilder kibanaQueryBuilder) throws IOException {
+    public Response search() throws IOException {
 
-        final HttpEntity query = kibanaQueryBuilder.entityQuery();
+        final HttpEntity query = elasticSearchQueryBuilder.entityQuery();
 
         LOGGER.info(EntityUtils.toString(query));
 

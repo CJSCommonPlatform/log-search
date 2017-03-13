@@ -10,57 +10,57 @@ import java.nio.file.Paths;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 
 public class PropertyReader {
 
-    private final SearchParameters searchParameters;
+    private final SearchConfig searchConfig;
     private final List<String> errors = new ArrayList<>();
     private SearchCriteria searchCriteria;
     private RestConfig restConfig;
 
-    public PropertyReader(final SearchParameters searchParameters) {
-        this.searchParameters = searchParameters;
+    public PropertyReader(final SearchConfig searchConfig) {
+        this.searchConfig = searchConfig;
         createAndValidate();
+        if (errors().size() > 0) {
+            throw new IllegalArgumentException(errors().toString());
+        }
     }
 
     private void createAndValidate() {
         createAndValidateRestConfig();
         createAndValidateSearchCriteria();
-        includeUserListIntoSearchCriteria();
+        if (searchConfig.getUserListFilePath() != null)
+            includeUserListIntoSearchCriteria();
     }
 
     private void includeUserListIntoSearchCriteria() {
-        final String userListFilePath = searchParameters.getUserListFilePath();
+        final String userListFilePath = searchConfig.getUserListFilePath();
         if (userListFilePath != null) {
             try {
                 try (InputStream in = Files.newInputStream(Paths.get(userListFilePath))) {
-                    final JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
-                    final Object obj = parser.parse(in);
-                    final JSONArray jsonArray = (JSONArray) obj;
-                    for (int i = 0; i < jsonArray.size(); i++) {
-                        JSONObject row = (JSONObject) jsonArray.get(i);
-                        searchCriteria.addKeyword((String) row.get("user"));
-                        searchCriteria.addKeyword((String) row.get("pass"));
+                    Scanner inputStream = new Scanner(in);
+                    while(inputStream.hasNext()){
+                        String data = inputStream.next();
+                        if (searchCriteria != null) {
+                            searchCriteria.addKeyword(data);
+                       }
                     }
                 }
             } catch (IOException e) {
                 errors.add("User list file is not present at given location: " + userListFilePath);
-            } catch (ParseException e) {
-                errors.add("User list has incorrect data resulting in parse error");
             }
         }
     }
 
     private void createAndValidateRestConfig() {
-        final String configFilePath = searchParameters.getConfigFilePath();
+        final String configFilePath = searchConfig.getConfigFilePath();
         try {
             try (InputStream in = Files.newInputStream(Paths.get(configFilePath))) {
                 final Yaml yaml = new Yaml();
@@ -74,7 +74,7 @@ public class PropertyReader {
     }
 
     private void createAndValidateSearchCriteria() {
-        final String searchCriteriaPath = searchParameters.getSearchCriteriaPath();
+        final String searchCriteriaPath = searchConfig.getSearchCriteriaPath();
         try {
             try (InputStream in = Files.newInputStream(Paths.get(searchCriteriaPath))) {
                 final Yaml yaml = new Yaml();
@@ -132,7 +132,6 @@ public class PropertyReader {
         }
     }
 
-
     private void validateDurationAndFromAndToTime() {
         boolean validFromTime = false;
         boolean validToTime = false;
@@ -147,7 +146,7 @@ public class PropertyReader {
             validToTime = true;
         }
         if (!validFromTime && validToTime || validFromTime && !validToTime) {
-            errors.add("From time and to time both should be entered using ISO_8601 format \"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\" ");
+            errors.add("From time and to time both should be entered using ISO_8601 format '" + ZonedDateTimes.ISO_8601 + "'");
         }
         if (validFromTime && validToTime) {
             searchCriteria.setFromToTimeSet(true);

@@ -28,6 +28,12 @@ import org.apache.http.ssl.SSLContexts;
 
 public class ConnectionManager {
 
+    private static int maxConnections;
+
+    public ConnectionManager(final int maxConnections) {
+        this.maxConnections = maxConnections;
+    }
+
     public PoolingNHttpClientConnectionManager connectionManager() {
         SSLContext sslcontext = sslContext();
         SSLIOSessionStrategy sslSessionStrategy = new SSLIOSessionStrategy(sslcontext, new AllowAll());
@@ -38,8 +44,8 @@ public class ConnectionManager {
                 .build();
 
         PoolingNHttpClientConnectionManager connectionManager = new PoolingNHttpClientConnectionManager(defaultConnectionIOReactor(), sessionStrategyRegistry);
-        connectionManager.setMaxTotal(40);
-        connectionManager.setDefaultMaxPerRoute(40);
+        connectionManager.setMaxTotal(maxConnections);
+        connectionManager.setDefaultMaxPerRoute(maxConnections);
         return connectionManager;
     }
 

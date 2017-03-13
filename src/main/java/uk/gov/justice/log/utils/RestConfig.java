@@ -5,14 +5,23 @@ public class RestConfig {
     private String hostName;
     private String hostScheme;
     private Integer hostPort;
-    private String proxyHost = "";
+    private String proxyHost;
     private int proxyPort;
+    private int maximumConnections;
+
+    public int getMaximumConnections() {
+        return maximumConnections;
+    }
+
+    public void setMaximumConnections(final int maximumConnections) {
+        this.maximumConnections = maximumConnections;
+    }
 
     public String getHostName() {
         return hostName;
     }
 
-    public void setHostName(String hostName) {
+    public void setHostName(final String hostName) {
         this.hostName = hostName;
     }
 
@@ -20,7 +29,7 @@ public class RestConfig {
         return hostPort;
     }
 
-    public void setHostPort(Integer hostPort) {
+    public void setHostPort(final Integer hostPort) {
         this.hostPort = hostPort;
     }
 
@@ -28,7 +37,7 @@ public class RestConfig {
         return hostScheme;
     }
 
-    public void setHostScheme(String hostScheme) {
+    public void setHostScheme(final String hostScheme) {
         this.hostScheme = hostScheme;
     }
 
@@ -36,7 +45,7 @@ public class RestConfig {
         return proxyHost;
     }
 
-    public void setProxyHost(String proxyHost) {
+    public void setProxyHost(final String proxyHost) {
         this.proxyHost = proxyHost;
     }
 
@@ -44,7 +53,7 @@ public class RestConfig {
         return proxyPort;
     }
 
-    public void setProxyPort(int proxyPort) {
+    public void setProxyPort(final int proxyPort) {
         this.proxyPort = proxyPort;
     }
 }
