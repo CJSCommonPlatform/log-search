@@ -9,13 +9,12 @@ import static uk.gov.justice.common.TestMockDataFiles.mockSetupForSearchCriteria
 import java.io.IOException;
 import java.util.Arrays;
 
-import net.minidev.json.parser.ParseException;
 import org.junit.Test;
 
 public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     @Test
-    public void shouldFailWhenHostNameMissingKey() throws IOException, ParseException {
-        expectedExption.expect(IllegalArgumentException.class);
+    public void shouldFailWhenHostNameMissingKey() throws IOException, ValidationException {
+        expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[Host name cannot be empty or null]");
 
         mockSetupForSearchCriteria(Arrays.asList("key1"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
@@ -28,8 +27,8 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldFailWhenHostNameMissingValue() throws IOException, ParseException {
-        expectedExption.expect(IllegalArgumentException.class);
+    public void shouldFailWhenHostNameMissingValue() throws IOException, ValidationException {
+        expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[Host name cannot be empty or null]");
 
         mockSetupForSearchCriteria(Arrays.asList("key1"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
@@ -42,7 +41,7 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenHostNameProvided() throws IOException, ParseException {
+    public void shouldPassWhenHostNameProvided() throws IOException, ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("key1"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 0, "", CONFIG_FILE_PATH);
 
@@ -53,8 +52,8 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldFailWhenSchemeMissingKey() throws IOException, ParseException {
-        expectedExption.expect(IllegalArgumentException.class);
+    public void shouldFailWhenSchemeMissingKey() throws IOException, ValidationException {
+        expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[Scheme cannot be empty or null]");
 
         mockSetupForSearchCriteria(Arrays.asList("key1"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
@@ -67,8 +66,8 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldFailWhenSchemeMissingValue() throws IOException, ParseException {
-        expectedExption.expect(IllegalArgumentException.class);
+    public void shouldFailWhenSchemeMissingValue() throws IOException, ValidationException {
+        expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[Scheme cannot be empty or null]");
 
         mockSetupForSearchCriteria(Arrays.asList("key1"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
@@ -81,7 +80,7 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenSchemeProvided() throws IOException, ParseException {
+    public void shouldPassWhenSchemeProvided() throws IOException, ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("key1"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 0, "", CONFIG_FILE_PATH);
 
@@ -92,8 +91,8 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldFailWhenHostPortMissingKey() throws IOException, ParseException {
-        expectedExption.expect(IllegalArgumentException.class);
+    public void shouldFailWhenHostPortMissingKey() throws IOException, ValidationException {
+        expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[Port cannot be empty or null]");
 
         mockSetupForSearchCriteria(Arrays.asList("key1"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
@@ -106,8 +105,8 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldFailWhenHostPortMissingValue() throws IOException, ParseException {
-        expectedExption.expect(IllegalArgumentException.class);
+    public void shouldFailWhenHostPortMissingValue() throws IOException, ValidationException {
+        expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[Port cannot be empty or null]");
 
         mockSetupForSearchCriteria(Arrays.asList("key1"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
@@ -120,7 +119,7 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenHostPortProvided() throws IOException, ParseException {
+    public void shouldPassWhenHostPortProvided() throws IOException, ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("key1"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 0, "", CONFIG_FILE_PATH);
 
@@ -131,7 +130,7 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenProxyPortMissingKey() throws IOException, ParseException {
+    public void shouldPassWhenProxyPortMissingKey() throws IOException, ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("key1"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 0, "", CONFIG_FILE_PATH);
 
@@ -142,7 +141,7 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenProxyPortMissingValue() throws IOException, ParseException {
+    public void shouldPassWhenProxyPortMissingValue() throws IOException, ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("key1"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 0, "", CONFIG_FILE_PATH);
 
@@ -153,7 +152,7 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenProxyPortProvided() throws IOException, ParseException {
+    public void shouldPassWhenProxyPortProvided() throws IOException, ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("key1"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, null, CONFIG_FILE_PATH);
 
@@ -164,7 +163,7 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenProxyHostMissingKey() throws IOException, ParseException {
+    public void shouldPassWhenProxyHostMissingKey() throws IOException, ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("key1", "key2", "key3"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 0, null, CONFIG_FILE_PATH);
 
@@ -175,7 +174,7 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenProxyHostMissingValue() throws IOException, ParseException {
+    public void shouldPassWhenProxyHostMissingValue() throws IOException, ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("key1", "key2", "key3"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 0, null, CONFIG_FILE_PATH);
 
@@ -186,7 +185,7 @@ public class RestConfigPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenProxyHostProvided() throws IOException, ParseException {
+    public void shouldPassWhenProxyHostProvided() throws IOException, ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("key1", "key2", "key3"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST, CONFIG_FILE_PATH);
 

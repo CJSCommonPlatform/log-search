@@ -17,7 +17,6 @@ public class SearchCriteria {
                           final List<String> keywords,
                           final List<String> regexes,
                           final int responseSize,
-
                           final String fromTime,
                           final String toTime) {
         this.durationMinutes = durationMinutes;

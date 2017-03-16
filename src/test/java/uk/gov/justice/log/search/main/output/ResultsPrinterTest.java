@@ -6,10 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.json.Json;
-import javax.json.JsonObjectBuilder;
-
-import net.minidev.json.JSONArray;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -34,14 +30,13 @@ public class ResultsPrinterTest {
         printers.add(consolePrinter);
         printers.add(filePrinter);
 
-        final JSONArray messageData = new JSONArray();
+        final List<String> messageData = new ArrayList<>();
         final Result result = new Result("query", "fromTime", "toTime", 10, messageData);
         resultsPrinter.outputPrinters = printers;
-        final JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
-        resultsPrinter.printResults(jsonObjectBuilder, result);
+        resultsPrinter.printResults(result);
 
-        verify(filePrinter).writeMessages(jsonObjectBuilder, result);
-        verify(consolePrinter).writeMessages(jsonObjectBuilder, result);
+        verify(filePrinter).writeMessages(result);
+        verify(consolePrinter).writeMessages(result);
     }
 
     @Test
@@ -53,7 +48,7 @@ public class ResultsPrinterTest {
 
         final ResultsPrinter resultsPrinter = new ResultsPrinter(printers);
 
-        final Exception exception = new Exception();
+        final IOException exception = new IOException();
         resultsPrinter.printException(exception);
 
         verify(filePrinter).writeException(exception);

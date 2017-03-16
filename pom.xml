@@ -15,8 +15,7 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
-        <common-bom.version>1.14.0-SNAPSHOT</common-bom.version>
-        <default.duration.seconds>1</default.duration.seconds>
+        <common-bom.version>1.15.0-SNAPSHOT</common-bom.version>
         <framework-version>1.4.1</framework-version>
         <elasticsearch.keepalive>true</elasticsearch.keepalive>
     </properties>
@@ -70,31 +69,20 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
+         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
-        </dependency>
-        <dependency>
+         </dependency>
+         <dependency>
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>common</artifactId>
             <version>${framework-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
+         </dependency>
+         <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-csv</artifactId>
+         </dependency>
+         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>rest</artifactId>
         </dependency>
@@ -114,11 +102,7 @@
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
@@ -126,6 +110,26 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+             <groupId>org.mockito</groupId>
+             <artifactId>mockito-core</artifactId>
+             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
@@ -136,11 +140,6 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-csv</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -188,7 +187,6 @@
                             <goal>runforked</goal>
                         </goals>
                     </execution>
-
                     <execution>
                         <id>stop-elasticsearch</id>
                         <phase>post-integration-test</phase>
@@ -201,11 +199,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <includes>
-                        <include>/*/**/SearchLogsIT.java,</include>
-                    </includes>
-                </configuration>
                 <executions>
                     <execution>
                         <goals>

@@ -11,6 +11,7 @@ public final class SearchConstants {
     public static final int MINS_TO_MILLIS_MULTIPLIER = 60000;
     public static final int MAX_RETRY_TIMEOUT_MILLIS = 60000;
     public static final int DEFAULT_RESPONSE_OUTPUT_SIZE = 100;
+    public static final int MAX_CONNECTIONS = 50;
 
     public static final String NEW_LINE = "\n";
     public static final String POST = "POST";

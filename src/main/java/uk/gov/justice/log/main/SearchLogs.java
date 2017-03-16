@@ -6,9 +6,12 @@ import uk.gov.justice.log.factory.SearchLogsFactory;
 import uk.gov.justice.log.search.ElasticSearchQueryBuilder;
 import uk.gov.justice.log.utils.PropertyReader;
 import uk.gov.justice.log.utils.SearchConfig;
+import uk.gov.justice.log.utils.ValidationException;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -38,20 +41,30 @@ public class SearchLogs {
     }
 
     public void run() {
-        final SearchConfig searchConfig = new SearchConfig(
-                configYamlFilePath, searchCriteriaYamlPath, userListJsonFilePath, resultsFilePath,displayConsoleMessages);
-
-        Path resultsPath = null;
-        if (resultsFilePath != null) {
-            resultsPath = Paths.get(resultsFilePath);
+        try {
+            final SearchConfig searchConfig = new SearchConfig(
+                    configYamlFilePath, searchCriteriaYamlPath, userListJsonFilePath, resultsFilePath, displayConsoleMessages);
+            long start = Instant.now().toEpochMilli();
+            Path resultsPath = null;
+            if (resultsFilePath != null) {
+                resultsPath = Paths.get(resultsFilePath);
+            }
+            final PropertyReader propertyReader = new PropertyReader(searchConfig);
+            final RestClientFactory restClientFactory = new RestClientFactory(propertyReader.restConfig());
+            final ElasticSearchQueryBuilder elasticSearchQueryBuilder = new ElasticSearchQueryBuilder((propertyReader.searchCriteria()));
+            final ResultExtractor resultExtractor = new ResultExtractor();
+            new SearchHandler(elasticSearchQueryBuilder, restClientFactory.restClient(),
+                    new SearchLogsFactory(propertyReader.searchCriteria()), resultExtractor,
+                    new ResultsPrinterFactory(resultsPath)
+            ).searchLogs(displayConsoleMessages);
+            long duration = Instant.now().toEpochMilli() - start;
+            System.out.println("Duration(millis)" + duration);
+        } catch (final ValidationException exception) {
+            System.err.println(exception);
+            System.exit(1);
+        } catch (final IOException exception) {
+            System.exit(2);
         }
-        final PropertyReader propertyReader = new PropertyReader(searchConfig);
-        final RestClientFactory restClientFactory = new RestClientFactory(propertyReader.restConfig());
-        final ElasticSearchQueryBuilder elasticSearchQueryBuilder = new ElasticSearchQueryBuilder((propertyReader.searchCriteria()));
 
-        new SearchHandler(elasticSearchQueryBuilder, restClientFactory.restClient(),
-                new SearchLogsFactory(propertyReader.searchCriteria()),
-                new ResultsPrinterFactory(resultsPath)
-        ).searchLogs(displayConsoleMessages);
     }
 }

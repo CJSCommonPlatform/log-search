@@ -26,6 +26,10 @@ See examples of command parameters discussed in detail below
        hostScheme: <<http or https>>
        proxyHost: <<proxy ip address>>
        proxyPort: <<proxy port>>
+       maxConnections: 50
+       restClientTimeout: 60000
+    
+    Default restClientTimeout value: 600000
     
 * Criteria Input: criteria.yaml (Mandatory)
  

@@ -15,6 +15,7 @@ import uk.gov.justice.log.search.SearchCriteria;
 import uk.gov.justice.log.utils.PropertyReader;
 import uk.gov.justice.log.utils.RestConfig;
 import uk.gov.justice.log.utils.SearchConfig;
+import uk.gov.justice.log.utils.ValidationException;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,7 +59,7 @@ public class AbstractIntegrationTest {
     protected SearchCriteria searchCriteria;
 
     @BeforeClass
-    public static void startElasticsearch() throws IOException, NodeValidationException, InterruptedException {
+    public static void startElasticsearch() throws IOException, ValidationException,InterruptedException {
         setFilePaths();
         removeOldDataDir(ES_WORKING_DIR);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, HOST_PORT, 0, "", CONFIG_FILE_PATH);

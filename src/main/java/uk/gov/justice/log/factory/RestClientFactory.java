@@ -47,7 +47,7 @@ public class RestClientFactory implements RestClientBuilder.RequestConfigCallbac
     public RestClient restClient() {
         return RestClient.builder(new HttpHost(restConfig.getHostName(),
                 restConfig.getHostPort(), restConfig.getHostScheme()))
-                .setMaxRetryTimeoutMillis(MAX_RETRY_TIMEOUT_MILLIS)
+                .setMaxRetryTimeoutMillis(restConfig.getRestClientTimeout())
                 .setRequestConfigCallback(this)
                 .setHttpClientConfigCallback(this)
                 .build();

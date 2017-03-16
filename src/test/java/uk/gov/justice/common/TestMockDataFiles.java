@@ -25,7 +25,7 @@ public class TestMockDataFiles {
         data.put("hostPort", hostPort);
         data.put("proxyPort", proxyPort);
         data.put("proxyHost", proxyHost);
-        data.put("maximumConnections",40);
+        data.put("maximumConnections", 40);
         new Yaml().dump(data, new FileWriter(filePath));
     }
 
@@ -43,7 +43,7 @@ public class TestMockDataFiles {
         data.put("fromTime", from);
         data.put("toTime", to);
 
-        new Yaml().dump(data, new FileWriter(filePath));
+        new Yaml().dump(data,new FileWriter(filePath));
     }
 
     public static void mockSetupForUserListFile(final String filePath) throws IOException {

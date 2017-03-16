@@ -7,7 +7,16 @@ public class RestConfig {
     private Integer hostPort;
     private String proxyHost;
     private int proxyPort;
-    private int maximumConnections;
+    private int maximumConnections = SearchConstants.MAX_CONNECTIONS;
+    private int restClientTimeout = SearchConstants.MAX_RETRY_TIMEOUT_MILLIS;
+
+    public int getRestClientTimeout() {
+        return restClientTimeout;
+    }
+
+    public void setRestClientTimeout(int restClientTimeout) {
+        this.restClientTimeout = restClientTimeout;
+    }
 
     public int getMaximumConnections() {
         return maximumConnections;

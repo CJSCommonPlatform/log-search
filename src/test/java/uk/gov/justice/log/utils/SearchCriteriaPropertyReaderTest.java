@@ -10,13 +10,12 @@ import static uk.gov.justice.services.common.converter.ZonedDateTimes.ISO_8601;
 import java.io.IOException;
 import java.util.Arrays;
 
-import net.minidev.json.parser.ParseException;
 import org.junit.Test;
 
 
 public class SearchCriteriaPropertyReaderTest extends PropertyReaderTest {
     @Test
-    public void shouldPassWhenKeywordsProvided() throws IOException, ParseException {
+    public void shouldPassWhenKeywordsProvided() throws IOException, ValidationException{
         mockSetupForSearchCriteria(Arrays.asList("key1", "key2", "key3"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_PATH, null, null));
@@ -28,8 +27,8 @@ public class SearchCriteriaPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldFailWhenKeywordsNotProvided() throws IOException, ParseException {
-        expectedExption.expect(IllegalArgumentException.class);
+    public void shouldFailWhenKeywordsNotProvided() throws IOException, ValidationException {
+        expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[Search Keywords cannot be empty or null]");
 
         mockSetupForSearchCriteria(null, null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
@@ -40,7 +39,7 @@ public class SearchCriteriaPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldNotTrimWhenKeywordsContainSpaces() throws IOException, ParseException {
+    public void shouldNotTrimWhenKeywordsContainSpaces() throws IOException, ValidationException {
         mockSetupForSearchCriteria(Arrays.asList(" key1 ", " key2 "), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST, CONFIG_FILE_PATH);
 
@@ -53,7 +52,7 @@ public class SearchCriteriaPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenRegexesProvided() throws IOException, ParseException {
+    public void shouldPassWhenRegexesProvided() throws IOException, ValidationException{
         mockSetupForSearchCriteria(Arrays.asList("key1"), Arrays.asList("[2][0][2]", "[4][0][0]"), 0, FROM, TO, SEARCH_CRITERIA_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_PATH, null, null));
@@ -64,7 +63,7 @@ public class SearchCriteriaPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenNoFromOrToTimeEntered() throws IOException, ParseException {
+    public void shouldPassWhenNoFromOrToTimeEntered() throws IOException, ValidationException {
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST, CONFIG_FILE_PATH);
         mockSetupForSearchCriteria(Arrays.asList("key1"), Arrays.asList("[2][0][2]", "[4][0][0]"), 0, null, null, SEARCH_CRITERIA_PATH);
 
@@ -76,8 +75,8 @@ public class SearchCriteriaPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldFailWhenOnlyValidToTimeEntered() throws IOException, ParseException {
-        expectedExption.expect(IllegalArgumentException.class);
+    public void shouldFailWhenOnlyValidToTimeEntered() throws IOException,  ValidationException {
+        expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[From time and to time both should be entered using ISO_8601 format '" + ISO_8601 + "']");
 
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST, CONFIG_FILE_PATH);
@@ -90,8 +89,8 @@ public class SearchCriteriaPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldFailWhenOnlyValidFromTimeEntered() throws IOException, ParseException {
-        expectedExption.expect(IllegalArgumentException.class);
+    public void shouldFailWhenOnlyValidFromTimeEntered() throws IOException, ValidationException {
+        expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[From time and to time both should be entered using ISO_8601 format '" + ISO_8601 + "']");
 
         mockSetupForSearchCriteria(Arrays.asList("key1"), Arrays.asList("[2][0][2]", "[4][0][0]"), 0, FROM, null, SEARCH_CRITERIA_PATH);
@@ -103,7 +102,7 @@ public class SearchCriteriaPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenValidFromTimeAndToTimeEntered() throws IOException, ParseException {
+    public void shouldPassWhenValidFromTimeAndToTimeEntered() throws IOException, ValidationException {
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST, CONFIG_FILE_PATH);
         mockSetupForSearchCriteria(Arrays.asList("key1"), Arrays.asList("[2][0][2]", "[4][0][0]"), 0, FROM, TO, SEARCH_CRITERIA_PATH);
 

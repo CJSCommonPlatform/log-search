@@ -12,7 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
-import net.minidev.json.parser.ParseException;
 import org.hamcrest.junit.ExpectedException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -61,8 +60,8 @@ public class PropertyReaderTest {
 
 
     @Test
-    public void shouldFailWhenSearchCriteriaFileIsNotFound() throws IOException, ParseException {
-        expectedExption.expect(IllegalArgumentException.class);
+    public void shouldFailWhenSearchCriteriaFileIsNotFound() throws IOException,ValidationException {
+        expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[criteria.yaml is not present at given location: /xyz]");
 
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST, CONFIG_FILE_PATH);
@@ -77,8 +76,8 @@ public class PropertyReaderTest {
     }
 
     @Test
-    public void shouldFailWhenConfigFileIsNotFound() throws IOException, ParseException {
-        expectedExption.expect(IllegalArgumentException.class);
+    public void shouldFailWhenConfigFileIsNotFound() throws IOException,ValidationException{
+        expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[config.yaml is not present at given location: /xyz]");
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST, CONFIG_FILE_PATH);
         mockSetupForSearchCriteria(Arrays.asList("key1"), Arrays.asList("[2][0][2]", "[4][0][0]"), 0, FROM, TO, SEARCH_CRITERIA_PATH);
@@ -92,8 +91,8 @@ public class PropertyReaderTest {
     }
 
     @Test
-    public void shouldFailWhenUserListFileIsNotFound() throws IOException, ParseException {
-        expectedExption.expect(IllegalArgumentException.class);
+    public void shouldFailWhenUserListFileIsNotFound() throws IOException,ValidationException {
+        expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[User list file is not present at given location: /Users/user.json]");
 
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST, CONFIG_FILE_PATH);
@@ -106,7 +105,7 @@ public class PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenUserListFileIsFound() throws IOException, ParseException {
+    public void shouldPassWhenUserListFileIsFound() throws IOException,ValidationException {
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST, CONFIG_FILE_PATH);
         mockSetupForSearchCriteria(Arrays.asList("key1"), Arrays.asList("[2][0][2]", "[4][0][0]"), 0, FROM, TO, SEARCH_CRITERIA_PATH);
         mockSetupForUserListFile(USER_LIST_PATH);
@@ -117,7 +116,7 @@ public class PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenBothFilesFound() throws IOException, ParseException {
+    public void shouldPassWhenBothFilesFound() throws IOException,ValidationException {
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_PATH
                 , null, null));
 
@@ -125,6 +124,6 @@ public class PropertyReaderTest {
     }
 
     protected SearchConfig setUpSearchParameters(String configPath, String searchPath, String userListPath, String responsePath) {
-        return new SearchConfig(configPath, searchPath, userListPath, responsePath,"yes");
+        return new SearchConfig(configPath, searchPath, userListPath, responsePath, "yes");
     }
 }

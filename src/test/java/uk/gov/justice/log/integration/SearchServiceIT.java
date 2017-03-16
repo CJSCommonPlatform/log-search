@@ -14,6 +14,7 @@ import uk.gov.justice.log.search.ElasticSearchQueryBuilder;
 import uk.gov.justice.log.search.SearchService;
 import uk.gov.justice.log.utils.PropertyReader;
 import uk.gov.justice.log.utils.SearchConfig;
+import uk.gov.justice.log.utils.ValidationException;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -26,14 +27,12 @@ import org.junit.runners.MethodSorters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SearchServiceIT extends AbstractIntegrationTest {
     private final Logger LOGGER = LoggerFactory.getLogger(SearchServiceIT.class);
 
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchWordsWithSpaceInTheBeginingOnly() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchWordsWithSpaceInTheBeginingOnly() throws IOException,ValidationException{
         mockSetupForSearchCriteria(Arrays.asList(" space in the beginning"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
@@ -58,7 +57,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchedUsingOneLowerCaseKeywordAdminUser() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchedUsingOneLowerCaseKeywordAdminUser() throws IOException,ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("adminuser"), null, 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
@@ -79,7 +78,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchedUsingOneKeywordUpperCaseAdminUser() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchedUsingOneKeywordUpperCaseAdminUser() throws IOException,ValidationException{
         mockSetupForSearchCriteria(Arrays.asList("ADMINUSER"), null, 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
@@ -110,7 +109,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchedUsingOneKeywordTes() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchedUsingOneKeywordTes() throws IOException ,ValidationException{
         mockSetupForSearchCriteria(Arrays.asList("tes"), null, 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
@@ -134,7 +133,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchedUsingMultipleKeywords() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchedUsingMultipleKeywords() throws IOException ,ValidationException{
         mockSetupForSearchCriteria(Arrays.asList("testuser", "adminuser"), null, 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
@@ -158,7 +157,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchedUsingOneRegexAndOneKeyword() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchedUsingOneRegexAndOneKeyword() throws IOException,ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("abcd"), Arrays.asList(ipRegex), 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
         searchCriteria = propertyReader.searchCriteria();
@@ -203,7 +202,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchedUsingMultipleRegexAndMultipleKeyword() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchedUsingMultipleRegexAndMultipleKeyword() throws IOException,ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("testuser", "adminuser"), Arrays.asList(ipRegex), 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
@@ -236,7 +235,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchedUsingMultipleRegexAndMultipleKeywordLimitByTime() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchedUsingMultipleRegexAndMultipleKeywordLimitByTime() throws IOException,ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("testuser", "adminuser"), Arrays.asList(ipRegex), 0, "2015-05-17T09:05:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
@@ -269,7 +268,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInBegining() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInBegining() throws IOException,ValidationException {
         mockSetupForSearchCriteria(Arrays.asList(".special$characterbeginining"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
@@ -294,7 +293,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInEnd() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInEnd() throws IOException,ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("xspecial$characterx."), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
@@ -320,7 +319,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInBeginingAndEnd() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInBeginingAndEnd() throws IOException,ValidationException {
         mockSetupForSearchCriteria(Arrays.asList(".special$characterbeginingandend."), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
@@ -345,7 +344,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchWordsWithSpaceInTheMiddle() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchWordsWithSpaceInTheMiddle() throws IOException,ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("space in the middle"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
@@ -370,7 +369,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchWordsWithSpaceInTheBeginingMiddleAndEnd() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchWordsWithSpaceInTheBeginingMiddleAndEnd() throws IOException ,ValidationException{
         mockSetupForSearchCriteria(Arrays.asList(" space in the beginning space in the middle space in the end "), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
@@ -395,7 +394,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInMiddle() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchWordsWithSpecialCharactersInMiddle() throws IOException,ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("space. in the middle with special characters"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
@@ -420,7 +419,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchSpecificIP() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchSpecificIP() throws IOException,ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("99.99.99.99"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
@@ -445,7 +444,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchSpecificIPWithspecialCharacterInBegining() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchSpecificIPWithspecialCharacterInBegining() throws IOException,ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("99.99.99.99"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:40.879Z", SEARCH_CRITERIA_FILE_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));
@@ -470,7 +469,7 @@ public class SearchServiceIT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void shouldFindCorrectHitsWhenSearchedforContainingWords() throws IOException {
+    public void shouldFindCorrectHitsWhenSearchedforContainingWords() throws IOException,ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("containingword "), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:40.879Z", SEARCH_CRITERIA_FILE_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null));

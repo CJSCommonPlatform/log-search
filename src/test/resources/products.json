@@ -49,7 +49,7 @@
 { "index": { "_index": "elasticsearch","_type":"products"  }}
 { "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": ".special$characterbeginining","@timestamp":"2015-05-18T11:03:22.877Z" }
 { "index": { "_index": "elasticsearch","_type":"products"  }}
-{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "xspecial$characterx","@timestamp":"2015-05-18T11:03:23.877Z" }
+{ "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "xspecial$characterx.","@timestamp":"2015-05-18T11:03:23.877Z" }
 { "index": { "_index": "elasticsearch","_type":"products"  }
 { "price" : 20, "productID" : "KDKE-B-9947-#kL5", "message": "space in the middle","@timestamp":"2015-05-18T11:03:24.877Z" }
 { "index": { "_index": "elasticsearch","_type":"products"  }

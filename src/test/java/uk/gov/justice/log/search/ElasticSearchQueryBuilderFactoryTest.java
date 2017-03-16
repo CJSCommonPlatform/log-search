@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public class ElasticSearchQueryBuilderFactoryTest {
 
     private static final int DURATION_MINUTES = 60;
-    private static final Instant now = Instant.now();
+    private static final Instant NOW = Instant.now();
     @Mock
     SearchConstants.InstantGenerator instantGenerator;
     @Mock
@@ -44,7 +44,7 @@ public class ElasticSearchQueryBuilderFactoryTest {
     @Before
     public void setUp() {
         elasticSearchQueryBuilder.setInstantGenerator(instantGenerator);
-        when(instantGenerator.now()).thenReturn(now);
+        when(instantGenerator.now()).thenReturn(NOW);
         when(searchCriteria.getDurationMinutes()).thenReturn(DURATION_MINUTES);
         when(searchCriteria.getResponseSize()).thenReturn(50);
     }
@@ -66,8 +66,8 @@ public class ElasticSearchQueryBuilderFactoryTest {
         when(searchCriteria.getResponseSize()).thenReturn(50);
 
         final int durationMillis = durationMinutes * MINS_TO_MILLIS_MULTIPLIER;
-        final long expectedTo = now.toEpochMilli();
-        final long expectedFrom = now.minusMillis(durationMillis).toEpochMilli();
+        final long expectedTo = NOW.toEpochMilli();
+        final long expectedFrom = NOW.minusMillis(durationMillis).toEpochMilli();
 
         final HttpEntity queryJson = elasticSearchQueryBuilder.entityQuery();
         final String queryJsonBody = EntityUtils.toString(queryJson).substring(3);

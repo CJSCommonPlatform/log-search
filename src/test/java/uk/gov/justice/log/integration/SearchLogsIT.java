@@ -1,4 +1,4 @@
-package uk.gov.justice.log.main;
+package uk.gov.justice.log.integration;
 
 
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.isJson;
@@ -26,6 +26,7 @@ import org.junit.Test;
 
 public class SearchLogsIT extends AbstractIntegrationTest {
     protected static String COMMAND;
+
 
     @Test
     public void shouldFailWhenConfigParameterNotPassed() throws Exception {
@@ -145,7 +146,7 @@ public class SearchLogsIT extends AbstractIntegrationTest {
     public void shouldFindCorrectHitsWhenSearchWords() throws IOException {
         mockSetupForSearchCriteria(Arrays.asList(" space in the beginning"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, HOST_PORT, 0, "", CONFIG_FILE_PATH);
-        COMMAND = "java -jar target/log-search.jar " + " -config " + CONFIG_FILE_PATH + " -search " + SEARCH_CRITERIA_FILE_PATH ;
+        COMMAND = "java -jar target/log-search.jar " + " -config " + CONFIG_FILE_PATH + " -search " + SEARCH_CRITERIA_FILE_PATH;
 
         final Output output = execute(COMMAND);
         assertThat(output.errorOutput, emptyString());

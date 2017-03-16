@@ -3,8 +3,7 @@ package uk.gov.justice.log.search.main.output;
 import static uk.gov.justice.log.utils.SearchConstants.MESSAGE_RESULT;
 import static uk.gov.justice.log.utils.SearchConstants.YES;
 
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
+import java.io.IOException;
 
 
 public class ConsolePrinter extends OutputPrinter {
@@ -17,17 +16,17 @@ public class ConsolePrinter extends OutputPrinter {
     }
 
     @Override
-    public void write(final JsonObject message) {
-        System.out.println(message);
-    }
-
-    @Override
-    public void writeMessages(final JsonObjectBuilder objectBuilder,
-                              final Result result) {
+    public void writeMessages(final Result result) {
         if (displayConsoleMessages.equalsIgnoreCase(YES)) {
-            System.out.println(MESSAGE_RESULT + jsonOf(objectBuilder, result));
+            System.out.println(MESSAGE_RESULT + jsonOf(result));
         } else {
             System.out.println("Hits: " + result.getHits());
         }
+    }
+
+    @Override
+    public void writeException(IOException ioException) throws IOException {
+        System.err.println(ioException);
+        throw ioException;
     }
 }

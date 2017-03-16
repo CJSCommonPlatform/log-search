@@ -1,6 +1,8 @@
 package uk.gov.justice.log.search;
 
 
+import static java.time.Instant.*;
+import static javax.json.Json.createObjectBuilder;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 import static uk.gov.justice.log.utils.SearchConstants.MINS_TO_MILLIS_MULTIPLIER;
 import static uk.gov.justice.log.utils.SearchConstants.NEW_LINE;
@@ -70,36 +72,36 @@ public class ElasticSearchQueryBuilder {
         if (searchCriteria.isFromToTimeSet()) {
             final String fromStr = searchCriteria.getFromTime();
             final String toStr = searchCriteria.getToTime();
-            searchFrom = Instant.parse(fromStr).toEpochMilli();
-            searchTo = Instant.parse(toStr).toEpochMilli();
+            searchFrom = parse(fromStr).toEpochMilli();
+            searchTo = parse(toStr).toEpochMilli();
         } else {
             final int rangeDuration = searchCriteria.getDurationMinutes();
             searchFrom = instantGenerator.now().minusMillis(rangeDuration * MINS_TO_MILLIS_MULTIPLIER).toEpochMilli();
             searchTo = instantGenerator.now().toEpochMilli();
-            searchCriteria.setFromTime(Instant.ofEpochMilli(searchFrom).toString());
-            searchCriteria.setToTime(Instant.ofEpochMilli(searchTo).toString());
+            searchCriteria.setFromTime(ofEpochMilli(searchFrom).toString());
+            searchCriteria.setToTime(ofEpochMilli(searchTo).toString());
         }
-        final JsonObject timeStampRange = Json.createObjectBuilder().add(FROM, searchFrom).add(TO, searchTo).build();
-        final JsonObject timestamp = Json.createObjectBuilder().add(TIMESTAMP_FIELD, timeStampRange).build();
+        final JsonObject timeStampRange = createObjectBuilder().add(FROM, searchFrom).add(TO, searchTo).build();
+        final JsonObject timestamp = createObjectBuilder().add(TIMESTAMP_FIELD, timeStampRange).build();
 
-        return Json.createObjectBuilder().add(RANGE, timestamp).build();
+        return createObjectBuilder().add(RANGE, timestamp).build();
     }
 
     private JsonObject regexp(final String field, final String regex) {
-        final JsonObject regexJsonObj = Json.createObjectBuilder().add(field, regex).build();
-        return Json.createObjectBuilder().add(REGEXP, regexJsonObj).build();
+        final JsonObject regexJsonObj = createObjectBuilder().add(field, regex).build();
+        return createObjectBuilder().add(REGEXP, regexJsonObj).build();
     }
 
     private JsonObject header() {
-        return Json.createObjectBuilder().build();
+        return createObjectBuilder().build();
     }
 
     private JsonObject body(final JsonValue queryValue) {
-        final JsonObjectBuilder bool = Json.createObjectBuilder().add(SHOULD, queryValue).add(MUST, range());
-        final JsonObjectBuilder boolQuery = Json.createObjectBuilder().add(BOOL, bool);
-        final JsonObjectBuilder filter = Json.createObjectBuilder().add(FILTER, boolQuery);
-        final JsonObjectBuilder constantSore = Json.createObjectBuilder().add(CONSTANT_SCORE, filter);
-        return Json.createObjectBuilder().add(SIZE, searchCriteria.getResponseSize()).add(QUERY_KEY, constantSore).build();
+        final JsonObjectBuilder bool = createObjectBuilder().add(SHOULD, queryValue).add(MUST, range());
+        final JsonObjectBuilder boolQuery = createObjectBuilder().add(BOOL, bool);
+        final JsonObjectBuilder filter = createObjectBuilder().add(FILTER, boolQuery);
+        final JsonObjectBuilder constantSore = createObjectBuilder().add(CONSTANT_SCORE, filter);
+        return createObjectBuilder().add(SIZE, searchCriteria.getResponseSize()).add(QUERY_KEY, constantSore).build();
     }
 
     private String multiSearchQuery(final JsonObject header, final JsonObject body) {

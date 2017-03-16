@@ -10,11 +10,9 @@ import java.nio.file.Paths;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 
@@ -25,12 +23,24 @@ public class PropertyReader {
     private SearchCriteria searchCriteria;
     private RestConfig restConfig;
 
-    public PropertyReader(final SearchConfig searchConfig) {
+    public PropertyReader(final SearchConfig searchConfig) throws ValidationException {
         this.searchConfig = searchConfig;
         createAndValidate();
         if (errors().size() > 0) {
-            throw new IllegalArgumentException(errors().toString());
+            throw new ValidationException(errors().toString());
         }
+    }
+
+    public RestConfig restConfig() {
+        return restConfig;
+    }
+
+    public SearchCriteria searchCriteria() {
+        return searchCriteria;
+    }
+
+    public List<String> errors() {
+        return errors;
     }
 
     private void createAndValidate() {
@@ -46,11 +56,11 @@ public class PropertyReader {
             try {
                 try (InputStream in = Files.newInputStream(Paths.get(userListFilePath))) {
                     Scanner inputStream = new Scanner(in);
-                    while(inputStream.hasNext()){
+                    while (inputStream.hasNext()) {
                         String data = inputStream.next();
                         if (searchCriteria != null) {
                             searchCriteria.addKeyword(data);
-                       }
+                        }
                     }
                 }
             } catch (IOException e) {
@@ -163,17 +173,5 @@ public class PropertyReader {
         } catch (DateTimeParseException e) {
             return false;
         }
-    }
-
-    public RestConfig restConfig() {
-        return restConfig;
-    }
-
-    public SearchCriteria searchCriteria() {
-        return searchCriteria;
-    }
-
-    public List<String> errors() {
-        return errors;
     }
 }

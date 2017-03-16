@@ -3,9 +3,6 @@ package uk.gov.justice.log.search.main.output;
 import java.io.IOException;
 import java.util.List;
 
-import javax.json.Json;
-import javax.json.JsonObjectBuilder;
-
 public class ResultsPrinter {
 
     protected List<OutputPrinter> outputPrinters;
@@ -14,21 +11,18 @@ public class ResultsPrinter {
         this.outputPrinters = outputPrinters;
     }
 
-    public void printResults(final JsonObjectBuilder jsonObjectBuilder,final Result result) {
-        try {
-            print(jsonObjectBuilder,result);
-        } catch (IOException exception) {
-            printException(exception);
-        }
+    public void printResults(final Result result) throws IOException {
+            print(result);
+
     }
 
-    private void print(final JsonObjectBuilder jsonObjectBuilder,final Result result) throws IOException {
+    private void print(final Result result) throws IOException {
         for (OutputPrinter printer : outputPrinters) {
-            printer.writeMessages(jsonObjectBuilder,result);
+            printer.writeMessages(result);
         }
     }
 
-    public void printException(final Exception exception) {
+    public void printException(final IOException exception) throws IOException {
         for (OutputPrinter printer : outputPrinters) {
             printer.writeException(exception);
         }
