@@ -11,14 +11,16 @@ public class ResultsPrinter {
         this.outputPrinters = outputPrinters;
     }
 
-    public void printResults(final Result result) throws IOException {
-            print(result);
+    public void printResults(final List<Result> results) throws IOException {
+        print(results);
 
     }
 
-    private void print(final Result result) throws IOException {
+    private void print(final List<Result> results) throws IOException {
         for (OutputPrinter printer : outputPrinters) {
-            printer.writeMessages(result);
+            for (Result result : results) {
+                printer.writeMessages(result);
+            }
         }
     }
 

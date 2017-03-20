@@ -1,12 +1,11 @@
 package uk.gov.justice.log.search.main.output;
 
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
+import static uk.gov.justice.log.utils.SearchConstants.FROM_TIME;
+import static uk.gov.justice.log.utils.SearchConstants.HITS;
+import static uk.gov.justice.log.utils.SearchConstants.QUERY;
+import static uk.gov.justice.log.utils.SearchConstants.TO_TIME;
+
 import java.util.List;
 
 import javax.json.Json;
@@ -17,17 +16,12 @@ import javax.json.JsonObjectBuilder;
 
 public abstract class OutputPrinter implements Printer {
 
-    protected void writeToFile(final Path path, final String message) throws IOException {
-        final OpenOption[] options = new OpenOption[]{CREATE, TRUNCATE_EXISTING};
-        Files.write(path, message.getBytes(), options);
-    }
-
     public String jsonOf(final Result result) {
         JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
-        jsonObjectBuilder.add("hits", result.getHits())
-                .add("query", result.getQuery())
-                .add("fromTime", result.getFromTime())
-                .add("toTime", result.getToTime());
+        jsonObjectBuilder.add(HITS, result.getHits())
+                .add(QUERY, result.getQuery())
+                .add(FROM_TIME, result.getFromTime())
+                .add(TO_TIME, result.getToTime());
         final JsonArrayBuilder messages = Json.createArrayBuilder();
         jsonObjectBuilder.add("messages", jsonArrayOf(messages, result.getMessage()));
         return jsonObjectBuilder.build().toString();

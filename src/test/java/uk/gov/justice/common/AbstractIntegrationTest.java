@@ -31,9 +31,7 @@ import javax.json.JsonObjectBuilder;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.nio.entity.NStringEntity;
-import org.elasticsearch.client.RestClient;
 import org.elasticsearch.common.io.FileSystemUtils;
-import org.elasticsearch.node.NodeValidationException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -59,16 +57,17 @@ public class AbstractIntegrationTest {
     protected SearchCriteria searchCriteria;
 
     @BeforeClass
-    public static void startElasticsearch() throws IOException, ValidationException,InterruptedException {
+    public static void startElasticsearch() throws IOException, ValidationException, InterruptedException {
         setFilePaths();
         removeOldDataDir(ES_WORKING_DIR);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, HOST_PORT, 0, "", CONFIG_FILE_PATH);
         mockSetupForSearchCriteria(Arrays.asList("testuser"), null, 0, "2015-05-17T09:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
-        final PropertyReader propertyReader = new PropertyReader(new SearchConfig(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null,"true"));
+        final PropertyReader propertyReader = new PropertyReader(new SearchConfig(CONFIG_FILE_PATH, SEARCH_CRITERIA_FILE_PATH, null, null, "true"));
         restConfig = propertyReader.restConfig();
         deleteAndCreateMapping();
         uploadSampleData();
         Thread.sleep(1000);
+        System.out.println("done loading");
     }
 
     private static void setFilePaths() throws IOException {
@@ -96,9 +95,9 @@ public class AbstractIntegrationTest {
         }
     }
 
-    public static RestClient restClient() {
+    public static RestClientFactory restClientFactory() {
         RestClientFactory factory = new RestClientFactory(restConfig);
-        return factory.restClient();
+        return factory;
     }
 
     private static void uploadSampleData() throws IOException {
@@ -106,7 +105,7 @@ public class AbstractIntegrationTest {
         final String logs = new String(encoded, "UTF-8");
         final String endpoint = ELASTIC_SEARCH_CLUSTER_URL + "_bulk?pretty";
         final HttpEntity data = new NStringEntity(logs, APPLICATION_JSON);
-        restClient().performRequest(POST, endpoint, Collections.emptyMap(), data);
+        restClientFactory().restClient().performRequest(POST, endpoint, Collections.emptyMap(), data);
     }
 
     private static JsonObject mappings() {
@@ -120,11 +119,11 @@ public class AbstractIntegrationTest {
     }
 
     private static void deleteAndCreateMapping() throws IOException {
-        restClient().performRequest(DELETE, ELASTIC_SEARCH_ALL);
+        restClientFactory().restClient().performRequest(DELETE, ELASTIC_SEARCH_ALL);
 
         final String mappings = mappings().toString();
         final HttpEntity mappingEntity = new NStringEntity(mappings, APPLICATION_JSON);
 
-        restClient().performRequest(PUT, ELASTIC_SEARCH_CLUSTER_URL, Collections.emptyMap(), mappingEntity);
+        restClientFactory().restClient().performRequest(PUT, ELASTIC_SEARCH_CLUSTER_URL, Collections.emptyMap(), mappingEntity);
     }
 }

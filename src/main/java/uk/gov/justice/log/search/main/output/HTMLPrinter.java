@@ -18,7 +18,7 @@ public class HTMLPrinter extends FilePrinter {
 
     private final Logger LOGGER = LoggerFactory.getLogger(HTMLPrinter.class);
 
-    public HTMLPrinter(final Path filePath) {
+    public HTMLPrinter(final Path filePath) throws IOException {
         super(filePath);
     }
 

@@ -8,7 +8,7 @@ public class Result {
     private final String query;
     private final String fromTime;
     private final String toTime;
-    private final List<String> message;
+    private final List<String> messages;
     private final int hits;
 
     public Result(final String query,
@@ -20,7 +20,7 @@ public class Result {
         this.fromTime = fromTime;
         this.toTime = toTime;
         this.hits = hits;
-        this.message = message;
+        this.messages = message;
     }
 
     public int getHits() {
@@ -40,6 +40,6 @@ public class Result {
     }
 
     public List<String> getMessage() {
-        return message;
+        return messages;
     }
 }

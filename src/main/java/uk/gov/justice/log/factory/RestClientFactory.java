@@ -1,6 +1,7 @@
 package uk.gov.justice.log.factory;
 
-import static uk.gov.justice.log.utils.SearchConstants.MAX_RETRY_TIMEOUT_MILLIS;
+import static uk.gov.justice.log.utils.SearchConstants.CONNECTION_TIMEOUT;
+import static uk.gov.justice.log.utils.SearchConstants.SOCKET_TIMEOUT;
 
 import uk.gov.justice.log.utils.ConnectionManager;
 import uk.gov.justice.log.utils.RestConfig;
@@ -32,6 +33,8 @@ public class RestClientFactory implements RestClientBuilder.RequestConfigCallbac
 
     @Override
     public RequestConfig.Builder customizeRequestConfig(RequestConfig.Builder builder) {
+        builder.setSocketTimeout(SOCKET_TIMEOUT);
+        builder.setConnectTimeout(CONNECTION_TIMEOUT);
         if (!StringUtils.isEmpty(restConfig.getProxyHost()) && restConfig.getProxyPort() != 0) {
             final HttpHost proxy = new HttpHost(restConfig.getProxyHost(), restConfig.getProxyPort());
             return builder.setProxy(proxy);
@@ -45,6 +48,7 @@ public class RestClientFactory implements RestClientBuilder.RequestConfigCallbac
      * @return the rest client
      */
     public RestClient restClient() {
+
         return RestClient.builder(new HttpHost(restConfig.getHostName(),
                 restConfig.getHostPort(), restConfig.getHostScheme()))
                 .setMaxRetryTimeoutMillis(restConfig.getRestClientTimeout())

@@ -1,15 +1,15 @@
 package uk.gov.justice.log.search;
 
 
-import static java.time.Instant.*;
+import static java.time.Instant.ofEpochMilli;
+import static java.time.Instant.parse;
 import static javax.json.Json.createObjectBuilder;
-import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 import static uk.gov.justice.log.utils.SearchConstants.MINS_TO_MILLIS_MULTIPLIER;
 import static uk.gov.justice.log.utils.SearchConstants.NEW_LINE;
 
 import uk.gov.justice.log.utils.SearchConstants;
 
-import java.time.Instant;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.json.Json;
@@ -17,9 +17,6 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.nio.entity.NStringEntity;
 
 public class ElasticSearchQueryBuilder {
     private static final String FROM = "gte";
@@ -37,33 +34,36 @@ public class ElasticSearchQueryBuilder {
     private static final String MESSAGE_FIELD = "message";
     private final SearchCriteria searchCriteria;
     private SearchConstants.InstantGenerator instantGenerator = new SearchConstants.InstantGenerator();
-    private String query;
-    private HttpEntity entityQuery;
+
+    private List<String> queries = new LinkedList<>();
 
     public ElasticSearchQueryBuilder(final SearchCriteria searchCriteria) {
         this.searchCriteria = searchCriteria;
     }
 
-    private String getKeywordsAndRegexesToQuery() {
-        final StringBuilder stringBuilder = new StringBuilder();
-
+    private void getKeywordsAndRegexesToQuery() {
         final JsonArrayBuilder regexpArrayBuilder = Json.createArrayBuilder();
         final List<String> regexes = searchCriteria.getRegexes();
         if (regexes != null && !regexes.isEmpty()) {
+            StringBuilder stringBuilder = new StringBuilder();
             for (String regex : regexes) {
                 regexpArrayBuilder.add(regexp(MESSAGE_FIELD, ".*" + regex + ".*"));
+                stringBuilder.append(multiSearchQuery(header(), body(regexpArrayBuilder.build())));
+                queries.add(stringBuilder.toString());
+                stringBuilder = new StringBuilder();
             }
         }
         final List<String> keywords = searchCriteria.getKeywords();
         if (keywords != null && !keywords.isEmpty()) {
+            StringBuilder stringBuilder = new StringBuilder();
             for (String keyword : keywords) {
                 regexpArrayBuilder.add(regexp(MESSAGE_FIELD, ".*\"" + keyword + "\".*"));
+                stringBuilder.append(multiSearchQuery(header(), body(regexpArrayBuilder.build())));
+                queries.add(stringBuilder.toString());
+                stringBuilder = new StringBuilder();
             }
-            stringBuilder.append(multiSearchQuery(header(), body(regexpArrayBuilder.build())));
         }
-        return stringBuilder.toString();
     }
-
 
     private JsonObject range() {
         long searchFrom;
@@ -105,24 +105,19 @@ public class ElasticSearchQueryBuilder {
     }
 
     private String multiSearchQuery(final JsonObject header, final JsonObject body) {
-        this.query = header.toString() + NEW_LINE + body.toString() + NEW_LINE;
-        return query;
+        return body.toString() + NEW_LINE;
     }
 
     public void setInstantGenerator(final SearchConstants.InstantGenerator instantGenerator) {
         this.instantGenerator = instantGenerator;
     }
 
-    public String query() {
-        return this.query;
-    }
-
-    public HttpEntity entityQuery() {
-        this.entityQuery = new NStringEntity(getKeywordsAndRegexesToQuery(), APPLICATION_JSON);
-        return entityQuery;
-    }
-
     public SearchCriteria searchCriteria() {
         return searchCriteria;
+    }
+
+    public List<String> queries() {
+        getKeywordsAndRegexesToQuery();
+        return this.queries;
     }
 }

@@ -1,7 +1,7 @@
 package uk.gov.justice.log.search.main.output;
 
+import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,12 +18,13 @@ public class FilePrinter extends OutputPrinter {
     protected final Path path;
     private final Logger LOGGER = LoggerFactory.getLogger(FilePrinter.class);
 
-    public FilePrinter(final Path filePath) {
+    public FilePrinter(final Path filePath) throws IOException {
         if (filePath != null) {
             this.path = filePath;
         } else {
             path = Paths.get("results.html");
         }
+        Files.deleteIfExists(path);
     }
 
     @Override
@@ -36,7 +37,7 @@ public class FilePrinter extends OutputPrinter {
     }
 
     protected void writeToFile(final Path path, final String message) throws IOException {
-        final OpenOption[] options = new OpenOption[]{CREATE, TRUNCATE_EXISTING};
+        final OpenOption[] options = new OpenOption[]{CREATE, APPEND};
         Files.write(path, message.getBytes(), options);
     }
 

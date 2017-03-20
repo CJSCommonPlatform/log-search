@@ -13,6 +13,8 @@ import static org.junit.Assert.assertThat;
 import static uk.gov.justice.common.TestMockDataFiles.mockSetupForConfig;
 import static uk.gov.justice.common.TestMockDataFiles.mockSetupForSearchCriteria;
 import static uk.gov.justice.log.utils.SearchConstants.MESSAGE_RESULT;
+import static uk.gov.justice.log.utils.SearchConstants.SEARCH_LOGS_HITS;
+import static uk.gov.justice.log.utils.SearchConstants.SEARCH_LOGS_MESSAGE_LIST;
 
 import uk.gov.justice.common.AbstractIntegrationTest;
 
@@ -147,14 +149,13 @@ public class SearchLogsIT extends AbstractIntegrationTest {
         mockSetupForSearchCriteria(Arrays.asList(" space in the beginning"), null, 0, "2015-05-17T06:03:25.877Z", "2015-05-18T11:03:28.877Z", SEARCH_CRITERIA_FILE_PATH);
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, HOST_PORT, 0, "", CONFIG_FILE_PATH);
         COMMAND = "java -jar target/log-search.jar " + " -config " + CONFIG_FILE_PATH + " -search " + SEARCH_CRITERIA_FILE_PATH;
-
         final Output output = execute(COMMAND);
         assertThat(output.errorOutput, emptyString());
         System.out.println(output.standardOutput);
         final String[] response = output.standardOutput.split(MESSAGE_RESULT);
         assertThat(response[1], isJson(allOf(
-                withJsonPath("$.hits", is(2)),
-                withJsonPath("$.messages[*]", containsInAnyOrder(" space in the beginning space in the middle", " space in the beginning space in the middle space in the end "))
+                withJsonPath(SEARCH_LOGS_HITS, is(2)),
+                withJsonPath(SEARCH_LOGS_MESSAGE_LIST, containsInAnyOrder(" space in the beginning space in the middle", " space in the beginning space in the middle space in the end "))
                 ))
         );
     }
@@ -164,7 +165,6 @@ public class SearchLogsIT extends AbstractIntegrationTest {
         final Process process = runtime.exec(cmd);
         return new Output(IOUtils.toString(process.getInputStream()), IOUtils.toString(process.getErrorStream()));
     }
-
 
     private static class Output {
         private String standardOutput;

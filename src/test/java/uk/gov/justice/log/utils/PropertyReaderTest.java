@@ -60,7 +60,7 @@ public class PropertyReaderTest {
 
 
     @Test
-    public void shouldFailWhenSearchCriteriaFileIsNotFound() throws IOException,ValidationException {
+    public void shouldFailWhenSearchCriteriaFileIsNotFound() throws IOException, ValidationException {
         expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[criteria.yaml is not present at given location: /xyz]");
 
@@ -76,7 +76,7 @@ public class PropertyReaderTest {
     }
 
     @Test
-    public void shouldFailWhenConfigFileIsNotFound() throws IOException,ValidationException{
+    public void shouldFailWhenConfigFileIsNotFound() throws IOException, ValidationException {
         expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[config.yaml is not present at given location: /xyz]");
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST, CONFIG_FILE_PATH);
@@ -91,7 +91,7 @@ public class PropertyReaderTest {
     }
 
     @Test
-    public void shouldFailWhenUserListFileIsNotFound() throws IOException,ValidationException {
+    public void shouldFailWhenUserListFileIsNotFound() throws IOException, ValidationException {
         expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[User list file is not present at given location: /Users/user.json]");
 
@@ -105,7 +105,7 @@ public class PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenUserListFileIsFound() throws IOException,ValidationException {
+    public void shouldPassWhenUserListFileIsFound() throws IOException, ValidationException {
         mockSetupForConfig(HOST_NAME, HOST_SCHEME, 8080, 8000, PROXY_HOST, CONFIG_FILE_PATH);
         mockSetupForSearchCriteria(Arrays.asList("key1"), Arrays.asList("[2][0][2]", "[4][0][0]"), 0, FROM, TO, SEARCH_CRITERIA_PATH);
         mockSetupForUserListFile(USER_LIST_PATH);
@@ -116,7 +116,7 @@ public class PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenBothFilesFound() throws IOException,ValidationException {
+    public void shouldPassWhenBothFilesFound() throws IOException, ValidationException {
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_PATH
                 , null, null));
 

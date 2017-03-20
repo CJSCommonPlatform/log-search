@@ -32,8 +32,10 @@ public class ResultsPrinterTest {
 
         final List<String> messageData = new ArrayList<>();
         final Result result = new Result("query", "fromTime", "toTime", 10, messageData);
+        final List<Result> results = new ArrayList<>();
+        results.add(result);
         resultsPrinter.outputPrinters = printers;
-        resultsPrinter.printResults(result);
+        resultsPrinter.printResults(results);
 
         verify(filePrinter).writeMessages(result);
         verify(consolePrinter).writeMessages(result);

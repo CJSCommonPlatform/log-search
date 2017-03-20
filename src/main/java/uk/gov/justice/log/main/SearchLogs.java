@@ -53,12 +53,12 @@ public class SearchLogs {
             final RestClientFactory restClientFactory = new RestClientFactory(propertyReader.restConfig());
             final ElasticSearchQueryBuilder elasticSearchQueryBuilder = new ElasticSearchQueryBuilder((propertyReader.searchCriteria()));
             final ResultExtractor resultExtractor = new ResultExtractor();
-            new SearchHandler(elasticSearchQueryBuilder, restClientFactory.restClient(),
+            new SearchHandler(elasticSearchQueryBuilder, restClientFactory,
                     new SearchLogsFactory(propertyReader.searchCriteria()), resultExtractor,
                     new ResultsPrinterFactory(resultsPath)
             ).searchLogs(displayConsoleMessages);
             long duration = Instant.now().toEpochMilli() - start;
-            System.out.println("Duration(millis)" + duration);
+            System.out.println("Duration(secs)" + duration / 1000);
         } catch (final ValidationException exception) {
             System.err.println(exception);
             System.exit(1);

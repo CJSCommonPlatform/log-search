@@ -43,7 +43,7 @@ public class TestMockDataFiles {
         data.put("fromTime", from);
         data.put("toTime", to);
 
-        new Yaml().dump(data,new FileWriter(filePath));
+        new Yaml().dump(data, new FileWriter(filePath));
     }
 
     public static void mockSetupForUserListFile(final String filePath) throws IOException {

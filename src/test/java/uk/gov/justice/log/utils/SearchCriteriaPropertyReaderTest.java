@@ -15,7 +15,7 @@ import org.junit.Test;
 
 public class SearchCriteriaPropertyReaderTest extends PropertyReaderTest {
     @Test
-    public void shouldPassWhenKeywordsProvided() throws IOException, ValidationException{
+    public void shouldPassWhenKeywordsProvided() throws IOException, ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("key1", "key2", "key3"), null, 0, FROM, TO, SEARCH_CRITERIA_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_PATH, null, null));
@@ -52,7 +52,7 @@ public class SearchCriteriaPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldPassWhenRegexesProvided() throws IOException, ValidationException{
+    public void shouldPassWhenRegexesProvided() throws IOException, ValidationException {
         mockSetupForSearchCriteria(Arrays.asList("key1"), Arrays.asList("[2][0][2]", "[4][0][0]"), 0, FROM, TO, SEARCH_CRITERIA_PATH);
 
         final PropertyReader propertyReader = new PropertyReader(setUpSearchParameters(CONFIG_FILE_PATH, SEARCH_CRITERIA_PATH, null, null));
@@ -75,7 +75,7 @@ public class SearchCriteriaPropertyReaderTest extends PropertyReaderTest {
     }
 
     @Test
-    public void shouldFailWhenOnlyValidToTimeEntered() throws IOException,  ValidationException {
+    public void shouldFailWhenOnlyValidToTimeEntered() throws IOException, ValidationException {
         expectedExption.expect(ValidationException.class);
         expectedExption.expectMessage("[From time and to time both should be entered using ISO_8601 format '" + ISO_8601 + "']");
 

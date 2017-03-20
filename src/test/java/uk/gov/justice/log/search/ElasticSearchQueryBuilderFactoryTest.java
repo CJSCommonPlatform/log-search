@@ -15,10 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.jayway.jsonpath.JsonPath;
-import net.minidev.json.JSONArray;
-import org.apache.http.HttpEntity;
-import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +35,7 @@ public class ElasticSearchQueryBuilderFactoryTest {
     SearchCriteria searchCriteria;
     @InjectMocks
     ElasticSearchQueryBuilder elasticSearchQueryBuilder;
+
     private Logger LOGGER = LoggerFactory.getLogger(ElasticSearchQueryBuilderFactoryTest.class);
 
     @Before
@@ -69,13 +66,12 @@ public class ElasticSearchQueryBuilderFactoryTest {
         final long expectedTo = NOW.toEpochMilli();
         final long expectedFrom = NOW.minusMillis(durationMillis).toEpochMilli();
 
-        final HttpEntity queryJson = elasticSearchQueryBuilder.entityQuery();
-        final String queryJsonBody = EntityUtils.toString(queryJson).substring(3);
+        final List<String> queries = elasticSearchQueryBuilder.queries();
+        final String query = queries.get(0).trim();
+        final List<String> from = JsonPath.read(query, "$.query..range.@timestamp.gte");
+        final List<String> to = JsonPath.read(query, "$.query..range.@timestamp.lte");
 
-        final JSONArray from = JsonPath.read(queryJsonBody, "$.query..range.@timestamp.gte");
-        final JSONArray to = JsonPath.read(queryJsonBody, "$.query..range.@timestamp.lte");
-
-        assertThat(queryJson, is(notNullValue()));
+        assertThat(queries.get(0), is(notNullValue()));
         assertThat(from.get(0), is(expectedFrom));
         assertThat(to.get(0), is(expectedTo));
     }
@@ -103,13 +99,14 @@ public class ElasticSearchQueryBuilderFactoryTest {
         final long expectedTo = now.toEpochMilli();
         final long expectedFrom = now.minusMillis(durationMillis).toEpochMilli();
 
-        final String queryExpected = "{}\n{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*\\\"202\\\".*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
-        final NStringEntity stringEntity = (NStringEntity) elasticSearchQueryBuilder.entityQuery();
+        final String regexpExpectedString = "{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*\\\"202\\\".*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
 
-        LOGGER.info(queryStr(stringEntity));
-        assertThat(queryStr(stringEntity), is(queryExpected));
+        final List<String> expQueries = new ArrayList<>();
+        expQueries.add(regexpExpectedString);
+
+        final List<String> actualQueries = elasticSearchQueryBuilder.queries();
+        assertThat(actualQueries, is(expQueries));
     }
-
 
     @Test
     public void shouldSearchWithMultipleKeywordWithOneField() throws IOException {
@@ -135,12 +132,15 @@ public class ElasticSearchQueryBuilderFactoryTest {
         final long expectedTo = now.toEpochMilli();
         final long expectedFrom = now.minusMillis(durationMillis).toEpochMilli();
 
-        final String queryExpected = "{}\n{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*\\\"202\\\".*\"}},{\"regexp\":{\"message\":\".*\\\"404\\\".*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
+        final String regexpExpectedString1 = "{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*\\\"202\\\".*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
+        final String regexpExpectedString2 = "{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*\\\"404\\\".*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
+        final List<String> expQueries = new ArrayList<>();
+        expQueries.add(regexpExpectedString1);
+        expQueries.add(regexpExpectedString2);
 
-        final NStringEntity stringEntity = (NStringEntity) elasticSearchQueryBuilder.entityQuery();
-        final String queryActual = queryStr(stringEntity);
-        LOGGER.info(queryActual);
-        assertThat(queryActual, is(queryExpected));
+        final List<String> queries = elasticSearchQueryBuilder.queries();
+
+        assertThat(queries, is(expQueries));
     }
 
 
@@ -157,7 +157,6 @@ public class ElasticSearchQueryBuilderFactoryTest {
         keywords.add("202");
 
         final List<String> regexes = new ArrayList<>();
-
         regexes.add("[2][0][2]");
 
         when(searchCriteria.getKeywords()).thenReturn(keywords);
@@ -169,12 +168,17 @@ public class ElasticSearchQueryBuilderFactoryTest {
         final long expectedTo = now.toEpochMilli();
         final long expectedFrom = now.minusMillis(durationMillis).toEpochMilli();
 
+        final String regexpExpectedString1 = "{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*[2][0][2].*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
+        final String regexpExpectedString2 = "{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*\\\"202\\\".*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
 
-        final String regexpExpectedString = "{}\n{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*[2][0][2].*\"}},{\"regexp\":{\"message\":\".*\\\"202\\\".*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
+        final List<String> expQueries = new ArrayList<>();
+        expQueries.add(regexpExpectedString1);
+        expQueries.add(regexpExpectedString2);
 
-        final NStringEntity stringEntity = (NStringEntity) elasticSearchQueryBuilder.entityQuery();
-        LOGGER.info(queryStr(stringEntity));
-        assertThat(queryStr(stringEntity), is(regexpExpectedString));
+        final List<String> queries = elasticSearchQueryBuilder.queries();
+
+        assertThat(queries, is(expQueries));
+
     }
 
     @Test
@@ -200,14 +204,21 @@ public class ElasticSearchQueryBuilderFactoryTest {
         final int durationMillis = durationMinutes * MINS_TO_MILLIS_MULTIPLIER;
         final long expectedTo = now.toEpochMilli();
         final long expectedFrom = now.minusMillis(durationMillis).toEpochMilli();
-        final String regexpExpectedString = "{}\n{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*[2][0][2].*\"}},{\"regexp\":{\"message\":\".*[4][0][4].*\"}},{\"regexp\":{\"message\":\".*\\\"202\\\".*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
 
-        final NStringEntity stringEntity = (NStringEntity) elasticSearchQueryBuilder.entityQuery();
-        LOGGER.info(queryStr(stringEntity));
-        assertThat(queryStr(stringEntity), is(regexpExpectedString));
+        final String regexpExpectedString1 = "{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*[2][0][2].*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
+
+        final String regexpExpectedString2 = "{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*[4][0][4].*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
+
+        final String regexpExpectedString3 = "{\"size\":50,\"query\":{\"constant_score\":{\"filter\":{\"bool\":{\"should\":[{\"regexp\":{\"message\":\".*\\\"202\\\".*\"}}],\"must\":{\"range\":{\"@timestamp\":{\"gte\":" + expectedFrom + ",\"lte\":" + expectedTo + "}}}}}}}}\n";
+
+        final List<String> expQueries = new ArrayList<>();
+        expQueries.add(regexpExpectedString1);
+        expQueries.add(regexpExpectedString2);
+        expQueries.add(regexpExpectedString3);
+
+        final List<String> queries = elasticSearchQueryBuilder.queries();
+
+        assertThat(queries, is(expQueries));
     }
 
-    private String queryStr(final NStringEntity stringEntity) throws IOException {
-        return EntityUtils.toString(stringEntity);
-    }
 }
